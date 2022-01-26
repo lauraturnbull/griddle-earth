@@ -1,4 +1,4 @@
-from . import types, exceptions
+from . import types
 from fastapi import HTTPException
 
 # pop list of common fluff words
@@ -32,7 +32,7 @@ class CommandParser:
         filtered_context = [w for w in context.split() if w not in null_words]
         return "".join(filtered_context)
 
-    def parse(self, command: str) -> types.CommandOut:
+    def parse(self, command: str) -> types.Command:
         # need to check action exists, raise custom error
         action = self.normalise_action(command)
         self.validate_command(action)
