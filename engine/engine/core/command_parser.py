@@ -36,7 +36,7 @@ class CommandParser:
         # need to check action exists, raise custom error
         action = self.normalise_action(command)
         self.validate_command(action)
-        return types.CommandOut(
+        return types.Command(
             action=action,
             context=self.normalise_context(command)
         )

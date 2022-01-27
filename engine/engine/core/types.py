@@ -1,4 +1,6 @@
 from pydantic import BaseModel
+from datetime import datetime
+from typing import List, Optional
 
 
 class Command(BaseModel):
@@ -6,13 +8,14 @@ class Command(BaseModel):
     context: str
 
 
-class Coordinates(BaseModel):
-    x: int = 0
-    y: int = 0
-
-
 class GameState(BaseModel):
-    coordinates: Coordinates = Coordinates()
-    health_points: int = 1000
+    x_coordinate: int
+    y_coordinate: int
+    health_points: int
     scene: str
-    # created_at = Column(DateTime)
+    created: datetime
+
+
+class Game(BaseModel):
+    id: int
+    game_states: List[GameState] = []
