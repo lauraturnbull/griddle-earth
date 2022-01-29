@@ -1,29 +1,33 @@
-from engine.core import types, command_parser
+from engine.core import types
+from engine.core.commands import command_parser
 from engine.core.commands import move
-from sqlalchemy.orm import sessionmaker
-from engine.adapters.sqlite import core, persister
+from sqlalchemy.orm import Session
+from engine.adapters.sqlite import persister
+from . import dependencies
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends, APIRouter
 
-app = FastAPI()
-
-Session = sessionmaker(bind=core.engine)
-session = Session()
+v1 = APIRouter()
 
 
-@app.get("/")
+@v1.get("/")
 def root():
     return {"message": "Hello World"}
 
 
-@app.post("/game")
-def create_new_game() -> types.Game:
+@v1.post("/game")
+def create_new_game(
+    session: Session = Depends(dependencies.session)
+) -> types.Game:
     new_game = persister.create_game(session)
     return new_game
 
 
-@app.get("/{game_id}/state")
-def get_game_state(game_id: int) -> types.GameState:
+@v1.get("/{game_id}/state")
+def get_game_state(
+    game_id: int,
+    session: Session = Depends(dependencies.session)
+) -> types.GameState:
     """
     Returns the current state of the player including:
     - location
@@ -37,7 +41,7 @@ def get_game_state(game_id: int) -> types.GameState:
     return game_state
 
 
-@app.get("/{id}/inventory")
+@v1.get("/{id}/inventory")
 def get_player_inventory():
     """
     Returns the player's inventory
@@ -45,8 +49,12 @@ def get_player_inventory():
     return
 
 
-@app.post("/{game_id}/command")
-def handle_command(game_id: int, input: str) -> types.GameState:
+@v1.post("/{game_id}/command")
+def handle_command(
+    game_id: int,
+    input: str,
+    session: Session = Depends(dependencies.session)
+) -> types.GameState:
     """
     Handles interaction with a scene
     validates
@@ -58,4 +66,5 @@ def handle_command(game_id: int, input: str) -> types.GameState:
     if command.action == "move":
         new_state = move.handle_command(current_state, command)
         state=persister.append_game_state(session, game_id, new_state)
-    return state
+        return state
+    return
