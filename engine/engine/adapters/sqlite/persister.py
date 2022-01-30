@@ -25,13 +25,33 @@ def game_app_to_db(game: types.Game) -> model.Game:
 
 # db to app
 
+def items_db_to_app(items: model.Items) -> types.Items:
+    return types.Items(
+        quantity=items.quantity,
+        item=types.Item(
+            name=items.item.name,
+            item_type=types.ItemType(items.item.item_type),
+            health_points=items.item.health_points
+        )
+    )
+
+
+def location_db_to_app(location: model.Location) -> types.Location:
+    return types.Location(
+        x_coordinate=location.x_coordinate,
+        y_coordinate=location.y_coordinate,
+        name=location.name,
+        description=location.description,
+        region=types.Region(location.region),
+        items=[items_db_to_app(i) for i in location.items]
+    )
+
+
 def state_db_to_app(state: model.GameState) -> types.GameState:
     return types.GameState(
         health_points=state.health_points,
-        scene=state.scene,
-        x_coordinate=state.x_coordinate,
-        y_coordinate=state.y_coordinate,
-        created=state.created
+        created=state.created,
+        location=location_db_to_app(state.location)
     )
 
 
@@ -47,14 +67,27 @@ def create_game(session: Session) -> types.Game:
         game_states=[
             model.GameState(
                 health_points=1000,
-                scene="Hungry Beginnings",
-                x_coordinate=0,
-                y_coordinate=0,
-                created=get_now()
+                created=get_now(),
+                location=model.Location(
+                    x_coordinate=0,
+                    y_coordinate=0,
+                    name="Hungry Beginnings",
+                    description="The very beginning of your journey.",
+                    region=types.Region.home_plains.value,
+                    items=[
+                        model.Items(
+                            quantity=3,
+                            item=model.Item(
+                                name="apple",
+                                item_type=types.ItemType.fruit.value,
+                                health_points=30,
+                            )
+                        )
+                    ]
+                ),
             )
         ]
     )
-
     session.add(new_game)
     session.commit()
 

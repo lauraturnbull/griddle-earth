@@ -1,3 +1,4 @@
 /configs/
 venv
 .venv
+/engine/griddle-earth.db
