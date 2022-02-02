@@ -30,6 +30,7 @@ class Items(Base):
     item = relationship("Item", uselist=False)
 
     location_id = Column(Integer, ForeignKey('location.id'))
+    inventory_id = Column(Integer, ForeignKey('inventory.id'))
 
 
 class Location(Base):
@@ -43,32 +44,33 @@ class Location(Base):
     description = Column(String)
     region = Column(String)
     items = relationship("Items", order_by=Items.id, backref="location")
-    game_state = relationship("GameState", back_populates="location")
-    game_state_id = Column(Integer, ForeignKey('game_state.id'))
+
+    game = relationship("Game", back_populates="location")
+    game_id = Column(Integer, ForeignKey('game.id'))
 
 
-class GameState(Base):
-    """The state of the entire game: player, inventory and location"""
-    __tablename__ = 'game_state'
+class Inventory(Base):
+    __tablename__ = "inventory"
+    id = Column(Integer, primary_key=True)
+    items = relationship("Items", backref="inventory")
+
+    game = relationship("Game", back_populates="inventory")
+    game_id = Column(Integer, ForeignKey('game.id'))
+
+
+class Game(Base):
+    """
+    The state of the entire game: player, inventory and location
+    The equivalent of "saves".
+    """
+    __tablename__ = 'game'
 
     id = Column(Integer, primary_key=True, index=True)
     health_points = Column(Integer)
     created = Column(DateTime)
 
-    location = relationship("Location", back_populates="game_state", uselist=False)
+    location = relationship("Location", back_populates="game", uselist=False)
+    inventory = relationship("Inventory", back_populates="game", uselist=False)
 
-    game_id = Column(
-        Integer, ForeignKey("game.id"),
-    )
-#     # todo- inventory
-
-
-class Game(Base):
-    __tablename__ = 'game'
-    id = Column(Integer, primary_key=True, index=True)
-    game_states = relationship("GameState", order_by=GameState.created, backref="game")
-    # name
-    # coordinates explored ?
-    # inventory collected ?
 
 

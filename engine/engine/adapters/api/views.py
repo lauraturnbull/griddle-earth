@@ -23,11 +23,11 @@ def create_new_game(
     return new_game
 
 
-@v1.get("/{game_id}/state")
-def get_game_state(
+@v1.get("/game/{game_id}")
+def get_game(
     game_id: int,
     session: Session = Depends(dependencies.session)
-) -> types.GameState:
+) -> types.Game:
     """
     Returns the current state of the player including:
     - location
@@ -35,18 +35,10 @@ def get_game_state(
     - description of the current scene
     - list of items available to access in scene
     """
-    game_state = persister.get_most_recent_game_state(
+    game = persister.get_game_by_id(
         session, game_id=game_id
     )
-    return game_state
-
-
-@v1.get("/{id}/inventory")
-def get_player_inventory():
-    """
-    Returns the player's inventory
-    """
-    return
+    return game
 
 
 @v1.post("/{game_id}/command")
@@ -54,17 +46,14 @@ def handle_command(
     game_id: int,
     input: str,
     session: Session = Depends(dependencies.session)
-) -> types.GameState:
+) -> types.Game:
     """
     Handles interaction with a scene
     validates
 
     """
-    parser = command_parser.CommandParser()
-    command = parser.parse(input)
-    current_state = persister.get_most_recent_game_state(session, game_id)
-    if command.action == "move":
-        new_state = move.handle_command(current_state, command)
-        state=persister.append_game_state(session, game_id, new_state)
-        return state
-    return
+    parser = command_parser.CommandParser(session, input)
+    current_state = persister.get_game_by_id(session, game_id)
+    new_state = parser.handle_command(current_state)
+    return new_state
+

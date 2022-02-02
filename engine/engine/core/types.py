@@ -6,7 +6,7 @@ from enum import Enum
 
 class Command(BaseModel):
     action: str
-    context: str
+    context: List[str]
 
 
 class ItemType(str, Enum):
@@ -37,24 +37,29 @@ class Region(str, Enum):
     home_plains = "Home Plains"
 
 
-class Location(BaseModel):
+class Coordinates(BaseModel):
     x_coordinate: int
     y_coordinate: int
+
+
+class Location(BaseModel):
+    coordinates: Coordinates
     name: str
     description: str
     region: Region
     items: List[Items] = []
 
 
-class GameState(BaseModel):
-    location: Optional[Location] = None
-    health_points: int
-    created: datetime
+class Inventory(BaseModel):
+    items: List[Items] = []
 
 
 class Game(BaseModel):
     id: int
-    game_states: List[GameState] = []
+    location: Optional[Location] = None
+    health_points: int
+    created: datetime
+    inventory: Inventory
 
 
 class Map(BaseModel):
