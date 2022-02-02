@@ -17,7 +17,7 @@ class CommandParser:
     def __init__(self, session, command):
         self.action = self.normalise_action(command)
         self.context = self.normalise_context(command)
-        self.session=session
+        self.session = session
 
     @staticmethod
     def validate_command(action: str):
@@ -45,8 +45,9 @@ class CommandParser:
         new_state = types.Game(**game.dict())
 
         if self.action == "move":
-            new_state.location.coordinates = move.handle_command(
-                coordinates=game.location.coordinates,
+            new_state.location = move.handle_command(
+                session=self.session,
+                game=new_state,
                 command=command
             )
             new_state.health_points -= 50

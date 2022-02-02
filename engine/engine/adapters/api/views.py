@@ -19,6 +19,7 @@ def root():
 def create_new_game(
     session: Session = Depends(dependencies.session)
 ) -> types.Game:
+    # todo - need to make map too
     new_game = persister.create_game(session)
     return new_game
 

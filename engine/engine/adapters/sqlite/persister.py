@@ -123,7 +123,6 @@ def get_game_by_id(session, game_id: int) -> types.Game:
     qry = (
         session.query(model.Game)
         .filter(model.Game.id == game_id)
-        .limit(1)
     )
     game_db = qry.one_or_none()
     return game_db_to_app(game_db)
@@ -140,3 +139,20 @@ def update_game(
     session.flush()
     session.commit()
     return game_db_to_app(new_game_db)
+
+
+def get_map_location_by_coordinates(
+    session,
+    game_id: int,
+    coordinates: types.Coordinates
+) -> types.Location:
+    qry = (
+        session.query(model.Location)
+        .filter(model.Location.map.game_id == game_id)
+        .filter(model.Location.x_coordinate == coordinates.x_coordinate)
+        .filter(model.Location.y_coordinate == coordinates.y_coordinate)
+        .limit(1)
+    )
+    # todo - handle none scenario
+    location_db = qry.one_or_none()
+    return location_db_to_app(location_db)

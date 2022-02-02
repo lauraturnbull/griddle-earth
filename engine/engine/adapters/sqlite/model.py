@@ -1,8 +1,23 @@
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
-from sqlalchemy.orm import relationship
-Base = declarative_base()
+from sqlalchemy.orm import relationship, backref
 
+
+def make_declarative_base():
+    Base = declarative_base()
+
+    Base.metadata.naming_convention = {
+        "ix": "ix_%(column_0_label)s",
+        "uq": "uq_%(table_name)s_%(column_0_name)s",
+        "ck": "ck_%(table_name)s_%(constraint_name)s",
+        "fk": "fk_%(table_name)s_%(column_0_name)s_%(referred_table_name)s",
+        "pk": "pk_%(table_name)s",
+    }
+
+    return Base
+
+
+Base = make_declarative_base()
 
 # todo - inventory
 # class Inventory(Base):
@@ -37,7 +52,7 @@ class Location(Base):
     """The state of a location on the map"""
     __tablename__ = 'location'
 
-    id = Column(Integer, primary_key=True)
+    id = Column(Integer, primary_key=True, index=True)
     x_coordinate = Column(Integer)
     y_coordinate = Column(Integer)
     name = Column(String)
@@ -47,11 +62,13 @@ class Location(Base):
 
     game = relationship("Game", back_populates="location")
     game_id = Column(Integer, ForeignKey('game.id'))
+    map = relationship("Map", back_populates="location")
+    map_id = Column(Integer, ForeignKey('map.id'))
 
 
 class Inventory(Base):
     __tablename__ = "inventory"
-    id = Column(Integer, primary_key=True)
+    id = Column(Integer, primary_key=True, index=True)
     items = relationship("Items", backref="inventory")
 
     game = relationship("Game", back_populates="inventory")
@@ -72,5 +89,13 @@ class Game(Base):
     location = relationship("Location", back_populates="game", uselist=False)
     inventory = relationship("Inventory", back_populates="game", uselist=False)
 
+
+class Map(Base):
+    __tablename__ = "map"
+
+    id = Column(Integer, primary_key=True, index=True)
+    locations = relationship("Location", backref="map")
+    game_id = Column(Integer, ForeignKey('game.id'))
+    game = relationship("Game", backref=backref("map", uselist=False))
 
 

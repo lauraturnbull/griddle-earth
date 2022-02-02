@@ -1,10 +1,12 @@
 from engine.core import types
+from engine.adapters.sqlite import persister
 
-# n,e,s,w?, change to dict that takes in the current value and returns the new coordinate obj
+# n,e,s,w?
 DIRECTIONS = ["north", "east", "south", "west"]
 
 
-def handle_command(coordinates: types.Coordinates, command: types.Command):
+def handle_command(session, game: types.Game, command: types.Command) -> types.Location:
+    coordinates = game.location.coordinates
     for direction in command.context:
         if direction in DIRECTIONS:
             if direction == "north":
@@ -19,6 +21,8 @@ def handle_command(coordinates: types.Coordinates, command: types.Command):
             pass
             # todo - raise something
 
-    # todo - current_state.created = get_now()
+    new_location = persister.get_map_location_by_coordinates(
+        session, game_id=game.game_id, coordinates=coordinates
+    )
 
-    return coordinates
+    return new_location
