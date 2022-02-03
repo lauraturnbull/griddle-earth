@@ -54,7 +54,18 @@ def get_game(
     return game
 
 
-@v1.post("/{game_id}/command")
+@v1.get("/game/{game_id}/map")
+def get_game_map(
+    game_id: int,
+    session: Session = Depends(dependencies.session)
+) -> types.Map:
+    map = persister.get_map_by_game_id(
+        session, game_id=game_id
+    )
+    return map
+
+
+@v1.post("/game/{game_id}/command")
 def handle_command(
     game_id: int,
     input: str,

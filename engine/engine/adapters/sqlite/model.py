@@ -62,7 +62,6 @@ class Location(Base):
 
     game = relationship("Game", back_populates="location")
     game_id = Column(Integer, ForeignKey('game.id'))
-    map = relationship("Map", back_populates="location")
     map_id = Column(Integer, ForeignKey('map.id'))
 
 

@@ -54,6 +54,7 @@ def map_app_to_db(map: types.Map) -> model.Map:
 
 # db to app
 
+
 def items_db_to_app(items: model.Items) -> types.Items:
     return types.Items(
         quantity=items.quantity,
@@ -133,6 +134,19 @@ def update_game(
     session.flush()
     session.commit()
     return game_db_to_app(new_game_db)
+
+
+def get_map_by_game_id(
+    session,
+    game_id: int,
+) -> types.Map:
+    qry = (
+        session.query(model.Map)
+        .filter(model.Map.game_id == game_id)
+        .limit(1)
+    )
+    map_db = qry.one_or_none()
+    return map_db_to_app(map_db)
 
 
 def get_map_location_by_coordinates(
