@@ -41,11 +41,16 @@ def inventory_app_to_db(inventory: types.Inventory) -> model.Inventory:
 
 def game_app_to_db(game: types.Game) -> model.Game:
     return model.Game(
-        location=location_app_to_db(game.location),
+        location=location_app_to_db(game.location) if game.location else None,
         inventory=inventory_app_to_db(game.inventory),
         **game.dict(exclude={"location", "inventory"})
     )
 
+
+def map_app_to_db(map: types.Map) -> model.Map:
+    return model.Map(
+        locations=[location_app_to_db(i) for i in map.locations]
+    )
 
 # db to app
 
@@ -84,39 +89,28 @@ def game_db_to_app(game: model.Game) -> types.Game:
         id=game.id,
         health_points=game.health_points,
         created=game.created,
-        location=location_db_to_app(game.location),
+        location=location_db_to_app(game.location) if game.location else None,
         inventory=inventory_db_to_app(game.inventory)
     )
 
 
-def create_game(session: Session) -> types.Game:
-    new_game = model.Game(
-        health_points=1000,
-        created=get_now(),
-        location=model.Location(
-            x_coordinate=0,
-            y_coordinate=0,
-            name="Hungry Beginnings",
-            description="The very beginning of your journey.",
-            region=types.Region.home_plains.value,
-            items=[
-                model.Items(
-                    quantity=3,
-                    item=model.Item(
-                        name="apple",
-                        item_type=types.ItemType.fruit.value,
-                        health_points=30,
-                    )
-                )
-            ]
-        ),
-        inventory=model.Inventory()
+def map_db_to_app(map: model.Map) -> types.Map:
+    return types.Map(
+        locations=[location_db_to_app(i) for i in map.locations]
     )
 
-    session.add(new_game)
+
+def create_new_game(session: Session, game: types.NewGame, map: types.Map) -> types.Game:
+    game_db = game_app_to_db(game)
+    session.add(game_db)
     session.commit()
 
-    return game_db_to_app(new_game)
+    map_db = map_app_to_db(map)
+    map_db.game_id = game_db.id
+    session.add(map_db)
+    session.commit()
+
+    return game_db_to_app(game_db)
 
 
 def get_game_by_id(session, game_id: int) -> types.Game:

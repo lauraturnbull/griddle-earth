@@ -1,13 +1,18 @@
 from engine.core import types
 from engine.core.commands import command_parser
-from engine.core.commands import move
+from engine.core.resources.base import map
 from sqlalchemy.orm import Session
 from engine.adapters.sqlite import persister
 from . import dependencies
+from datetime import datetime, timezone
 
-from fastapi import FastAPI, Depends, APIRouter
+from fastapi import Depends, APIRouter
 
 v1 = APIRouter()
+
+
+def get_now() -> datetime:
+    return datetime.now(timezone.utc)
 
 
 @v1.get("/")
@@ -19,8 +24,15 @@ def root():
 def create_new_game(
     session: Session = Depends(dependencies.session)
 ) -> types.Game:
-    # todo - need to make map too
-    new_game = persister.create_game(session)
+    base_game = types.NewGame(
+        health_points=1000,
+        inventory=types.Inventory(),
+        created=get_now(),
+        name="Hungry Beginnings",
+        description="The very beginning of your journey.",
+    )
+    base_map = map.make_base_map()
+    new_game = persister.create_new_game(session, game=base_game, map=base_map)
     return new_game
 
 

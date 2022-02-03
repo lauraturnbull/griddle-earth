@@ -54,6 +54,13 @@ class Inventory(BaseModel):
     items: List[Items] = []
 
 
+class NewGame(BaseModel):
+    location: Optional[Location] = None
+    health_points: int
+    created: datetime
+    inventory: Inventory
+
+
 class Game(BaseModel):
     id: int
     location: Optional[Location] = None
