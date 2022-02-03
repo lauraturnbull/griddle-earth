@@ -154,13 +154,15 @@ def get_map_location_by_coordinates(
     game_id: int,
     coordinates: types.Coordinates
 ) -> types.Location:
+
     qry = (
         session.query(model.Location)
-        .filter(model.Location.map.game_id == game_id)
+        .join(model.Map)
+        .filter(model.Map.game_id == game_id)
         .filter(model.Location.x_coordinate == coordinates.x_coordinate)
         .filter(model.Location.y_coordinate == coordinates.y_coordinate)
-        .limit(1)
     )
+
     # todo - handle none scenario
     location_db = qry.one_or_none()
     return location_db_to_app(location_db)
