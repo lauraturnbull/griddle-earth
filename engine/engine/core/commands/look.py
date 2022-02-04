@@ -12,7 +12,7 @@ def handle_command(
 
     component_name = " ".join(command.context)
     component = next(
-        (c for c in location.components if c.name == component_name),
+        (c for c in location.components if c.name.lower() == component_name),
         None
     )
     if component is None:
