@@ -12,8 +12,7 @@ class Command(BaseModel):
 class ItemType(str, Enum):
     fruit = "fruit"
     vegetable = "vegetable"
-    meat = "meat"
-    fish = "fish"
+    protein = "protein"
     grain = "grain"
     herb = "herb"
 
@@ -42,12 +41,19 @@ class Coordinates(BaseModel):
     y_coordinate: int
 
 
+class Component(BaseModel):
+    """A small part of a location that can be interacted with"""
+    name: str  # animal tracks
+    description: str  # frequently used, perfect for setting traps
+    items: List[Items] = []
+
+
 class Location(BaseModel):
     coordinates: Coordinates
     name: str
     description: str
     region: Region
-    items: List[Items] = []
+    components: List[Component] = []
 
 
 class Inventory(BaseModel):
@@ -71,3 +77,13 @@ class Game(BaseModel):
 
 class Map(BaseModel):
     locations: List[Location] = []
+
+
+# command return types
+
+class ComponentNameList(BaseModel):
+    names: List[str]
+
+
+class ComponentDescription(BaseModel):
+    description: str

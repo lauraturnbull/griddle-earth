@@ -24,12 +24,19 @@ def items_app_to_db(items: types.Items) -> model.Items:
     )
 
 
+def component_app_to_db(component: types.Component) -> model.Component:
+    return model.Component(
+        items=[items_app_to_db(i) for i in component.items],
+        **component.dict(exclude={"items"})
+    )
+
+
 def location_app_to_db(location: types.Location) -> model.Location:
     return model.Location(
         x_coordinate=location.coordinates.x_coordinate,
         y_coordinate=location.coordinates.y_coordinate,
-        items=[items_app_to_db(i) for i in location.items],
-        **location.dict(exclude={"coordinates", "items"})
+        components=[component_app_to_db(c) for c in location.components],
+        **location.dict(exclude={"coordinates", "components"})
     )
 
 
@@ -66,6 +73,14 @@ def items_db_to_app(items: model.Items) -> types.Items:
     )
 
 
+def component_db_to_app(component: model.Component) -> types.Component:
+    return types.Component(
+        name=component.name,
+        description=component.description,
+        items=[items_db_to_app(i) for i in component.items]
+    )
+
+
 def location_db_to_app(location: model.Location) -> types.Location:
     return types.Location(
         coordinates=types.Coordinates(
@@ -75,7 +90,7 @@ def location_db_to_app(location: model.Location) -> types.Location:
         name=location.name,
         description=location.description,
         region=types.Region(location.region),
-        items=[items_db_to_app(i) for i in location.items]
+        components=[component_db_to_app(i) for i in location.components],
     )
 
 

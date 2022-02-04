@@ -44,8 +44,19 @@ class Items(Base):
     item_id = Column(Integer, ForeignKey('item.id'))
     item = relationship("Item", uselist=False)
 
-    location_id = Column(Integer, ForeignKey('location.id'))
+    component_id = Column(Integer, ForeignKey('component.id'))
     inventory_id = Column(Integer, ForeignKey('inventory.id'))
+
+
+class Component(Base):
+    __tablename__ = "component"
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String)
+    description = Column(String)
+    items = relationship("Items", backref="component")
+
+    location_id = Column(Integer, ForeignKey('location.id'))
 
 
 class Location(Base):
@@ -58,7 +69,7 @@ class Location(Base):
     name = Column(String)
     description = Column(String)
     region = Column(String)
-    items = relationship("Items", order_by=Items.id, backref="location")
+    components = relationship("Component", backref="location")
 
     game = relationship("Game", back_populates="location")
     game_id = Column(Integer, ForeignKey('game.id'))

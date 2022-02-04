@@ -1,15 +1,15 @@
 from engine.core import types
 from fastapi import HTTPException
-from . import move
+from . import move, look
 from typing import List
 from engine.adapters.postgres import persister
 # pop list of common fluff words
 # or just grab from known list of items?
 # there should only be one item per list
-null_words = ["the", "a", "an"]
+null_words = ["the", "a", "an", "at"]
 
 # take? map to same action as grab
-actions = ["grab", "look", "move", "use", "view"]
+actions = ["grab", "look", "move", "use", "look"]
 
 
 class CommandParser:
@@ -51,6 +51,12 @@ class CommandParser:
                 command=command
             )
             new_state.health_points -= 50
+        elif self.action == "look":
+            # read only, no update
+            return look.handle_command(
+                location=game.location,
+                command=command
+            )
         return persister.update_game(
             self.session,
             game_id=game.id,

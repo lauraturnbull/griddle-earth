@@ -25,9 +25,12 @@ spotted_mushroom = Item(
     health_points=-30,
 )
 
-# meat
-
-# fish
+# proteins
+egg = Item(
+    name="egg",
+    item_type=ItemType.protein,
+    health_points=40,
+)
 
 # grains
 
