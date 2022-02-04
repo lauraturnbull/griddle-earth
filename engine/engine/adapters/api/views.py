@@ -2,7 +2,7 @@ from engine.core import types
 from engine.core.commands import command_parser
 from engine.core.resources.base import map
 from sqlalchemy.orm import Session
-from engine.adapters.sqlite import persister
+from engine.adapters.postgres import persister
 from . import dependencies
 from datetime import datetime, timezone
 

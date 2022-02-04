@@ -2,7 +2,7 @@ from engine.core import types
 from fastapi import HTTPException
 from . import move
 from typing import List
-from engine.adapters.sqlite import persister
+from engine.adapters.postgres import persister
 # pop list of common fluff words
 # or just grab from known list of items?
 # there should only be one item per list

@@ -1,5 +1,5 @@
 from engine.core import types
-from engine.adapters.sqlite import persister
+from engine.adapters.postgres import persister
 
 # n,e,s,w?
 DIRECTIONS = ["north", "east", "south", "west"]
