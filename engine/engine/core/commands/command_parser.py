@@ -1,6 +1,6 @@
 from engine.core import types
 from fastapi import HTTPException
-from . import move, look
+from . import move, look, take
 from typing import List
 from engine.adapters.postgres import persister
 # pop list of common fluff words
@@ -42,23 +42,28 @@ class CommandParser:
     def handle_command(self, game: types.Game):
         self.validate_command(self.action)
         command = types.Command(action=self.action,context=self.context)
-        new_state = types.Game(**game.dict())
 
         if self.action == "move":
-            new_state.location = move.handle_command(
+            game.location = move.handle_command(
                 session=self.session,
-                game=new_state,
+                game=game,
                 command=command
             )
-            new_state.health_points -= 50
-        elif self.action == "look":
+            game.health_points -= 50
+        if self.action == "look":
             # read only, no update
             return look.handle_command(
                 location=game.location,
                 command=command
             )
+        if self.action == "take":
+            return take.handle_command(
+                session=self.session,
+                game=game,
+                command=command
+            )
         return persister.update_game(
             self.session,
             game_id=game.id,
-            new_game_state=new_state
+            new_game_state=game
         )
