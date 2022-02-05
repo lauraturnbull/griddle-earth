@@ -9,7 +9,7 @@ from engine.adapters.postgres import persister
 null_words = ["the", "a", "an", "at"]
 
 # take? map to same action as grab
-actions = ["grab", "look", "move", "use", "look"]
+actions = ["take", "look", "move", "use", "start"]
 
 
 class CommandParser:
@@ -35,14 +35,26 @@ class CommandParser:
     @staticmethod
     def normalise_context(command) -> List[str]:
         # remove the action and flatten (todo- what about leading spaces)
-        context = command.lower().split(' ', 1)[1]
-        filtered_context = [w for w in context.split() if w not in null_words]
-        return filtered_context
+        try:
+            context = command.lower().split(' ', 1)[1]
+            return [w for w in context.split() if w not in null_words]
+        except IndexError:
+            return []
 
     def handle_command(self, game: types.Game):
         self.validate_command(self.action)
         command = types.Command(action=self.action,context=self.context)
 
+        if self.action == "start":
+            location = persister.get_map_location_by_coordinates(
+                self.session,
+                game_id=game.id,
+                coordinates=types.Coordinates(
+                    x_coordinate=0,
+                    y_coordinate=0
+                )
+            )
+            game.location = location
         if self.action == "move":
             game.location = move.handle_command(
                 session=self.session,
