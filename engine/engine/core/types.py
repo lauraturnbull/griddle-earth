@@ -79,6 +79,34 @@ class Map(BaseModel):
     locations: List[Location] = []
 
 
+class AdventureLog(BaseModel):
+    """Raw locations/items discovered - for db"""
+    discovered_locations: List[Location] = []
+    discoverable_locations: List[Location]
+    discovered_items: List[Item] = []
+    discoverable_items: List[Item]
+    # inventory ?
+    # discovered_meals ?
+
+
+class DiscoveredLocationsByRegion(BaseModel):
+    region: Region
+    discovered: int = 0
+    discoverable: int
+
+
+class DiscoveredItemsByType(BaseModel):
+    item_type: ItemType
+    discovered: int = 0
+    discoverable: int
+
+
+class AdventureLogOut(BaseModel):
+    """Formatted locations and items discovered"""
+    locations_discovered: List[DiscoveredLocationsByRegion]
+    items_discovered: List[DiscoveredItemsByType]
+
+
 # command return types
 
 class ComponentNameList(BaseModel):

@@ -109,3 +109,19 @@ class Map(Base):
     game = relationship("Game", backref=backref("map", uselist=False))
 
 
+class AdventureLog(Base):
+    __tablename__ = "adventure_log"
+
+    id = Column(Integer, primary_key=True, index=True)
+    discovered_locations_id = Column(Integer, ForeignKey("location.id"))
+    discoverable_locations_id = Column(Integer, ForeignKey("location.id"))
+    discovered_items_id = Column(Integer, ForeignKey("item.id"))
+    discoverable_items_id = Column(Integer, ForeignKey("item.id"))
+
+    discovered_locations = relationship("Location", foreign_keys=[discovered_locations_id], uselist=True)
+    discoverable_locations = relationship("Location", foreign_keys=[discoverable_locations_id], uselist=True)
+    discovered_items = relationship("Item", foreign_keys=[discovered_items_id], uselist=True)
+    discoverable_items = relationship("Item", foreign_keys=[discoverable_items_id], uselist=True)
+
+    game_id = Column(Integer, ForeignKey('game.id'))
+    game = relationship("Game", backref=backref("adventure_log", uselist=False))

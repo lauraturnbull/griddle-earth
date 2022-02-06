@@ -1,6 +1,6 @@
 from engine.core import types
 from engine.core.commands import command_parser
-from engine.core.resources.base import map
+from engine.core.resources.base import map, adventure_log
 from sqlalchemy.orm import Session
 from engine.adapters.postgres import persister
 from . import dependencies
@@ -32,7 +32,13 @@ def create_new_game(
         description="The very beginning of your journey.",
     )
     base_map = map.make_base_map()
-    new_game = persister.create_new_game(session, game=base_game, map=base_map)
+    base_adventure_log = adventure_log.make_base_adventure_log(map=base_map)
+    new_game = persister.create_new_game(
+        session,
+        game=base_game,
+        map=base_map,
+        adventure_log=base_adventure_log
+    )
     return new_game
 
 
@@ -63,6 +69,17 @@ def get_game_map(
         session, game_id=game_id
     )
     return map
+
+
+@v1.get("/game/{game_id}/adventure-log")
+def get_game_adventure_log(
+    game_id: int,
+    session: Session = Depends(dependencies.session)
+) -> types.AdventureLog:
+    adventure_log = persister.get_adventure_log_by_game_id(
+        session, game_id=game_id
+    )
+    return adventure_log
 
 
 @v1.post("/game/{game_id}/command")

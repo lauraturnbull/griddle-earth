@@ -59,17 +59,40 @@ def map_app_to_db(map: types.Map) -> model.Map:
         locations=[location_app_to_db(i) for i in map.locations]
     )
 
+
+def adventure_log_app_to_db(
+    adventure_log: types.AdventureLog
+) -> model.AdventureLog:
+    return model.AdventureLog(
+        discovered_locations=[
+            location_app_to_db(i) for i in adventure_log.discovered_locations
+        ],
+        discoverable_locations=[
+            location_app_to_db(i) for i in adventure_log.discoverable_locations
+        ],
+        discovered_items=[
+            item_app_to_db(i) for i in adventure_log.discovered_items
+        ],
+        discoverable_items=[
+            item_app_to_db(i) for i in adventure_log.discoverable_items
+        ]
+    )
+
 # db to app
+
+
+def item_db_to_app(item: model.Item) -> types.Item:
+    return types.Item(
+        name=item.name,
+        item_type=types.ItemType(item.item_type),
+        health_points=item.health_points
+    )
 
 
 def items_db_to_app(items: model.Items) -> types.Items:
     return types.Items(
         quantity=items.quantity,
-        item=types.Item(
-            name=items.item.name,
-            item_type=types.ItemType(items.item.item_type),
-            health_points=items.item.health_points
-        )
+        item=item_db_to_app(items.item)
     )
 
 
@@ -116,14 +139,46 @@ def map_db_to_app(map: model.Map) -> types.Map:
     )
 
 
-def create_new_game(session: Session, game: types.NewGame, map: types.Map) -> types.Game:
+def adventure_log_db_to_app(
+    adventure_log: model.AdventureLog
+) -> types.AdventureLog:
+    return types.AdventureLog(
+        discovered_locations=[
+            location_db_to_app(i) for i in adventure_log.discovered_locations
+        ],
+        discoverable_locations=[
+            location_db_to_app(i) for i in adventure_log.discoverable_locations
+        ],
+        discovered_items=[
+            item_db_to_app(i) for i in adventure_log.discovered_items
+        ],
+        discoverable_items=[
+            item_db_to_app(i) for i in adventure_log.discoverable_items
+        ]
+    )
+
+
+def create_new_game(
+    session: Session,
+    game: types.NewGame,
+    map: types.Map,
+    adventure_log: types.AdventureLog
+) -> types.Game:
+    # create the game
     game_db = game_app_to_db(game)
     session.add(game_db)
     session.commit()
 
+    # store the map used for this game
     map_db = map_app_to_db(map)
     map_db.game_id = game_db.id
     session.add(map_db)
+    session.commit()
+
+    # store discoverable locations and items based on map
+    adventure_log_db = adventure_log_app_to_db(adventure_log)
+    adventure_log_db.game_id = game_db.id
+    session.add(adventure_log_db)
     session.commit()
 
     return game_db_to_app(game_db)
@@ -162,6 +217,19 @@ def get_map_by_game_id(
     )
     map_db = qry.one_or_none()
     return map_db_to_app(map_db)
+
+
+def get_adventure_log_by_game_id(
+    session,
+    game_id: int,
+) -> types.AdventureLog:
+    qry = (
+        session.query(model.AdventureLog)
+        .filter(model.AdventureLog.game_id == game_id)
+        .limit(1)
+    )
+    adventure_log_db = qry.one_or_none()
+    return adventure_log_db_to_app(adventure_log_db)
 
 
 def get_map_location_by_coordinates(
