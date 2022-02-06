@@ -249,3 +249,34 @@ def get_map_location_by_coordinates(
     # todo - handle none scenario
     location_db = qry.one_or_none()
     return location_db_to_app(location_db)
+
+
+def update_map_location(
+    session,
+    game_id: int,
+    new_location_state: types.Location
+) -> types.Location:
+
+    # existing
+    qry = (
+        session.query(model.Location)
+        .join(model.Map)
+        .filter(model.Map.game_id == game_id)
+        .filter(
+            model.Location.x_coordinate
+            == new_location_state.coordinates.x_coordinate
+        )
+        .filter(
+            model.Location.y_coordinate
+            == new_location_state.coordinates.y_coordinate
+        )
+    )
+    location_db = qry.one_or_none()
+    # merge with new state
+    new_location_db = location_app_to_db(new_location_state)
+    new_location_db.id = location_db.id
+    session.merge(new_location_db)
+    session.flush()
+    session.commit()
+
+    return location_db_to_app(new_location_db)

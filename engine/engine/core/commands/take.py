@@ -82,8 +82,14 @@ def handle_command(
     item_name = " ".join(context[:delimiter_index])
     component_name = " ".join(context[delimiter_index+1:])
 
+    map_location = persister.get_map_location_by_coordinates(
+        session=session,
+        game_id=game.id,
+        coordinates=game.location.coordinates
+    )
+
     map_component = get_component(
-        components=game.location.components, component_name=component_name
+        components=map_location.components, component_name=component_name
     )
     map_items = get_items(
         items_list=map_component.items, item_name=item_name
@@ -111,6 +117,17 @@ def handle_command(
     if map_items.quantity == 0:
         map_component.items.remove(map_items)
 
-    persister.update_game(session, game_id=game.id, new_game_state=game)
+    game.location = map_location
+
+    persister.update_map_location(
+        session,
+        game_id=game.id,
+        new_location_state=map_location
+    )
+    persister.update_game(
+        session,
+        game_id=game.id,
+        new_game_state=game
+    )
 
     return inventory_items
