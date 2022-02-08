@@ -179,6 +179,7 @@ def create_new_game(
     adventure_log_db = adventure_log_app_to_db(adventure_log)
     adventure_log_db.game_id = game_db.id
     session.add(adventure_log_db)
+    session.flush()
     session.commit()
 
     return game_db_to_app(game_db)
@@ -230,6 +231,34 @@ def get_adventure_log_by_game_id(
     )
     adventure_log_db = qry.one_or_none()
     return adventure_log_db_to_app(adventure_log_db)
+
+
+def update_adventure_log_discovered_locations(
+    session,
+    game_id: int,
+    location: types.Location,
+):
+    qry = (
+        session.query(model.AdventureLog)
+        .filter(model.AdventureLog.game_id == game_id)
+        .limit(1)
+    )
+    adventure_log_db = qry.one_or_none()
+    adventure_log = adventure_log_db_to_app(adventure_log_db)
+    existing_location = next(
+        (
+            l
+            for l in adventure_log.discovered_locations
+            if l.coordinates == location.coordinates
+        ),
+        None
+    )
+    if not existing_location:
+        adventure_log_db.discovered_locations.append(
+            location_app_to_db(location)
+        )
+        session.commit()
+        session.flush()
 
 
 def get_map_location_by_coordinates(

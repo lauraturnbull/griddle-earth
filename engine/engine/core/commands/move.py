@@ -5,7 +5,9 @@ from engine.adapters.postgres import persister
 DIRECTIONS = ["north", "east", "south", "west"]
 
 
-def handle_command(session, game: types.Game, command: types.Command) -> types.Location:
+def handle_command(
+    session, game: types.Game, command: types.Command
+) -> types.Location:
     if game.location is None:
         return persister.get_map_location_by_coordinates(
             session,
@@ -30,5 +32,13 @@ def handle_command(session, game: types.Game, command: types.Command) -> types.L
     new_location = persister.get_map_location_by_coordinates(
         session, game_id=game.id, coordinates=coordinates
     )
+
+    # update the game state
+    game.location = new_location
+    game.health_points -= 50
+
+    persister.update_game(session, game_id=game.id, new_game_state=game)
+
+    persister.update_adventure_log_discovered_locations(session, game_id=game.id, location=game.location)
 
     return new_location

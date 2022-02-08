@@ -33,6 +33,8 @@ class Item(Base):
     name = Column(String)
     item_type = Column(String)
     health_points = Column(Integer)
+    adventure_log_discovered_items = Column(Integer, ForeignKey('adventure_log.id'))
+    adventure_log_discoverable_items = Column(Integer, ForeignKey('adventure_log.id'))
 
 
 class Items(Base):
@@ -75,6 +77,9 @@ class Location(Base):
     game_id = Column(Integer, ForeignKey('game.id'))
     map_id = Column(Integer, ForeignKey('map.id'))
 
+    adventure_log_discovered_locations = Column(Integer, ForeignKey('adventure_log.id'))
+    adventure_log_discoverable_locations = Column(Integer, ForeignKey('adventure_log.id'))
+
 
 class Inventory(Base):
     __tablename__ = "inventory"
@@ -113,15 +118,11 @@ class AdventureLog(Base):
     __tablename__ = "adventure_log"
 
     id = Column(Integer, primary_key=True, index=True)
-    discovered_locations_id = Column(Integer, ForeignKey("location.id"))
-    discoverable_locations_id = Column(Integer, ForeignKey("location.id"))
-    discovered_items_id = Column(Integer, ForeignKey("item.id"))
-    discoverable_items_id = Column(Integer, ForeignKey("item.id"))
 
-    discovered_locations = relationship("Location", foreign_keys=[discovered_locations_id], uselist=True)
-    discoverable_locations = relationship("Location", foreign_keys=[discoverable_locations_id], uselist=True)
-    discovered_items = relationship("Item", foreign_keys=[discovered_items_id], uselist=True)
-    discoverable_items = relationship("Item", foreign_keys=[discoverable_items_id], uselist=True)
+    discovered_locations = relationship("Location", foreign_keys=Location.adventure_log_discovered_locations)
+    discoverable_locations = relationship("Location", foreign_keys=Location.adventure_log_discoverable_locations)
+    discovered_items = relationship("Item", foreign_keys=Item.adventure_log_discovered_items)
+    discoverable_items = relationship("Item", foreign_keys=Item.adventure_log_discoverable_items)
 
     game_id = Column(Integer, ForeignKey('game.id'))
     game = relationship("Game", backref=backref("adventure_log", uselist=False))

@@ -56,12 +56,11 @@ class CommandParser:
             )
             game.location = location
         if self.action == "move":
-            game.location = move.handle_command(
+            return move.handle_command(
                 session=self.session,
                 game=game,
                 command=command
             )
-            game.health_points -= 50
         if self.action == "look":
             # read only, no update
             return look.handle_command(
