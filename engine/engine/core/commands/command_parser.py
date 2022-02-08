@@ -9,7 +9,7 @@ from engine.adapters.postgres import persister
 null_words = ["the", "a", "an", "at"]
 
 # take? map to same action as grab
-actions = ["take", "look", "move", "use", "start"]
+actions = ["take", "look", "move", "use", "start", "set trap"]
 
 
 class CommandParser:
@@ -20,29 +20,25 @@ class CommandParser:
         self.session = session
 
     @staticmethod
-    def validate_command(action: str):
-        if action not in actions:
+    def normalise_action(command: str) -> str:
+        action = next((a for a in actions if a in command), None)
+        if action is None:
             raise HTTPException(
                 status_code=422,
                 detail=f"{action} is not a valid action. Please choose from:"
                        f" {', '.join(actions)}"
             )
 
-    @staticmethod
-    def normalise_action(command: str) -> str:
-        return command.lower().split()[0]
+        return action
 
-    @staticmethod
-    def normalise_context(command) -> List[str]:
-        # remove the action and flatten (todo- what about leading spaces)
+    def normalise_context(self, command) -> List[str]:
         try:
-            context = command.lower().split(' ', 1)[1]
+            context = command.lower().split(self.action, 1)[1].lstrip()
             return [w for w in context.split() if w not in null_words]
         except IndexError:
             return []
 
     def handle_command(self, game: types.Game):
-        self.validate_command(self.action)
         command = types.Command(action=self.action,context=self.context)
 
         if self.action == "start":
