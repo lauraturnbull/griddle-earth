@@ -261,6 +261,35 @@ def update_adventure_log_discovered_locations(
         session.flush()
 
 
+def update_adventure_log_discovered_items(
+    session,
+    game_id: int,
+    item: types.Item
+):
+    qry = (
+        session.query(model.AdventureLog)
+        .filter(model.AdventureLog.game_id == game_id)
+        .limit(1)
+    )
+    adventure_log_db = qry.one_or_none()
+    adventure_log = adventure_log_db_to_app(adventure_log_db)
+    existing_item = next(
+        (
+            i
+            for i in adventure_log.discovered_items
+            if i == item
+        ),
+        None
+    )
+    if not existing_item:
+        adventure_log_db.discovered_items.append(
+            item_app_to_db(item)
+        )
+        session.commit()
+        session.flush()
+
+
+
 def get_map_location_by_coordinates(
     session,
     game_id: int,

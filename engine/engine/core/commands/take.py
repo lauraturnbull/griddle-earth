@@ -130,4 +130,10 @@ def handle_command(
         new_game_state=game
     )
 
+    persister.update_adventure_log_discovered_items(
+        session,
+        game_id=game.id,
+        new_item=inventory_items.item
+    )
+
     return inventory_items
