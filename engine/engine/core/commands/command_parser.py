@@ -1,6 +1,6 @@
 from engine.core import types
 from fastapi import HTTPException
-from . import move, look, take
+from . import move, look, take, trap
 from typing import List
 from engine.adapters.postgres import persister
 # pop list of common fluff words
@@ -21,6 +21,8 @@ class CommandParser:
 
     @staticmethod
     def normalise_action(command: str) -> str:
+        # maybe need to pop out null_words before getting action
+        # e.g. set a trap
         action = next((a for a in actions if a in command), None)
         if action is None:
             raise HTTPException(
@@ -65,6 +67,12 @@ class CommandParser:
             )
         if self.action == "take":
             return take.handle_command(
+                session=self.session,
+                game=game,
+                command=command
+            )
+        if self.action == "set trap":
+            return trap.handle_command(
                 session=self.session,
                 game=game,
                 command=command

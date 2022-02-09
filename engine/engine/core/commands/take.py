@@ -37,6 +37,7 @@ def handle_command(
 
     item_name = " ".join(context[:delimiter_index])
     component_name = " ".join(context[delimiter_index+1:])
+    # todo need to check that the collection method is forage
 
     return move_item_to_inventory(
         session,
