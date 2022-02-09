@@ -33,6 +33,7 @@ class Item(Base):
     name = Column(String)
     item_type = Column(String)
     health_points = Column(Integer)
+    collection_method = Column(String)
     adventure_log_discovered_items = Column(Integer, ForeignKey('adventure_log.id'))
     adventure_log_discoverable_items = Column(Integer, ForeignKey('adventure_log.id'))
 

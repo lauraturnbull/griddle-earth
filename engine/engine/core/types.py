@@ -17,10 +17,16 @@ class ItemType(str, Enum):
     herb = "herb"
 
 
+class ItemCollectionMethod(str, Enum):
+    hunt = "hunt"
+    forage = "forage"
+
+
 class Item(BaseModel):
     name: str
     item_type: ItemType
     health_points: int
+    collection_method: ItemCollectionMethod
 
 
 class Items(BaseModel):

@@ -13,7 +13,8 @@ def get_now() -> datetime:
 def item_app_to_db(item: types.Item) -> model.Item:
     return model.Item(
         item_type=item.item_type.value,
-        **item.dict(exclude={"item_type"})
+        collection_method=item.collection_method.value,
+        **item.dict(exclude={"item_type", "collection_method"})
     )
 
 
@@ -85,7 +86,8 @@ def item_db_to_app(item: model.Item) -> types.Item:
     return types.Item(
         name=item.name,
         item_type=types.ItemType(item.item_type),
-        health_points=item.health_points
+        health_points=item.health_points,
+        collection_method=types.ItemCollectionMethod(item.collection_method)
     )
 
 
