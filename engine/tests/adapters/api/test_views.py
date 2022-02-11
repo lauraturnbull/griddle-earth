@@ -1,11 +1,13 @@
-from fastapi.testclient import TestClient
-from tests.factories import core
-from freezegun import freeze_time
 from datetime import datetime
 from unittest.mock import patch
-from fastapi.encoders import jsonable_encoder
 
-frozen_time=datetime(2022, 2, 2)
+from fastapi.encoders import jsonable_encoder
+from fastapi.testclient import TestClient
+from freezegun import freeze_time
+
+from tests.factories import core
+
+frozen_time = datetime(2022, 2, 2)
 
 
 @freeze_time(frozen_time)
@@ -31,7 +33,7 @@ def test_get_game_by_id(client: TestClient):
 
 
 @freeze_time(frozen_time)
-@patch('engine.core.resources.base.map.make_base_map')
+@patch("engine.core.resources.base.map.make_base_map")
 def test_get_map_by_game_id(patched_map, client: TestClient):
     map = core.make_map()
     patched_map.return_value = map
@@ -45,7 +47,7 @@ def test_get_map_by_game_id(patched_map, client: TestClient):
 
 
 @freeze_time(frozen_time)
-@patch('engine.core.resources.base.map.make_base_map')
+@patch("engine.core.resources.base.map.make_base_map")
 def test_get_adventure_log_by_game_id(patched_map, client: TestClient):
     # todo - this should have a different response type in future
     map = core.make_map()

@@ -1,19 +1,14 @@
 import logging
+from os import environ, path
 from typing import Optional
 
+import attr
+import yaml
+from fastapi import FastAPI
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-import yaml
-import attr
-from os import environ, path
 
-
-from . import dependencies
-from . import views
-
-
-from fastapi import FastAPI
-
+from . import dependencies, views
 
 logger = logging.getLogger(__name__)
 
@@ -36,9 +31,7 @@ def get_config() -> AppConfig:
     with open(config_path) as config_f:
         config_dict = yaml.safe_load(config_f)
 
-    return AppConfig(
-        DB_URL=config_dict["DB_URL"]
-     )
+    return AppConfig(DB_URL=config_dict["DB_URL"])
 
 
 def setup_app(
@@ -59,10 +52,7 @@ def create_app(config: Optional[AppConfig] = None) -> FastAPI:
     config = config or get_config()
 
     session_cls = sessionmaker(
-        bind=create_engine(
-            config.DB_URL
-        ),
-        autoflush=False
+        bind=create_engine(config.DB_URL), autoflush=False
     )
 
     app = setup_app(

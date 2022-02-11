@@ -1,5 +1,7 @@
-from engine.core import types
 from fastapi import HTTPException
+
+from engine.core import types
+
 from .helpers import move_item_to_inventory
 
 
@@ -32,11 +34,11 @@ def handle_command(
             detail=(
                 f"You must provide the location when taking items, i.e: "
                 f"take {' '.join(command.context)} from ___"
-            )
+            ),
         )
 
     item_name = " ".join(context[:delimiter_index])
-    component_name = " ".join(context[delimiter_index+1:])
+    component_name = " ".join(context[delimiter_index + 1 :])
     # todo need to check that the collection method is forage
 
     return move_item_to_inventory(
@@ -44,5 +46,5 @@ def handle_command(
         game=game,
         item_name=item_name,
         component_name=component_name,
-        take_all=take_all
+        take_all=take_all,
     )

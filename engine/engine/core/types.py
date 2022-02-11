@@ -1,7 +1,8 @@
-from pydantic import BaseModel
 from datetime import datetime
-from typing import List, Optional
 from enum import Enum
+from typing import List, Optional
+
+from pydantic import BaseModel
 
 
 class Command(BaseModel):
@@ -35,10 +36,10 @@ class Items(BaseModel):
 
 
 class Region(str, Enum):
-    wetlands = "wetlands",
-    mountains = "mountains",
-    forest = "forest",
-    desert = "desert",
+    wetlands = ("wetlands",)
+    mountains = ("mountains",)
+    forest = ("forest",)
+    desert = ("desert",)
     home_plains = "Home Plains"
 
 
@@ -49,6 +50,7 @@ class Coordinates(BaseModel):
 
 class Component(BaseModel):
     """A small part of a location that can be interacted with"""
+
     name: str  # animal tracks
     description: str  # frequently used, perfect for setting traps
     items: List[Items] = []
@@ -87,6 +89,7 @@ class Map(BaseModel):
 
 class AdventureLog(BaseModel):
     """Raw locations/items discovered - for db"""
+
     discovered_locations: List[Location] = []
     discoverable_locations: List[Location]
     discovered_items: List[Item] = []
@@ -109,11 +112,13 @@ class DiscoveredItemsByType(BaseModel):
 
 class AdventureLogOut(BaseModel):
     """Formatted locations and items discovered"""
+
     locations_discovered: List[DiscoveredLocationsByRegion]
     items_discovered: List[DiscoveredItemsByType]
 
 
 # command return types
+
 
 class ComponentNameList(BaseModel):
     names: List[str]

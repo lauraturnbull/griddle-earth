@@ -32,13 +32,10 @@ def make_base_map() -> types.Map:
                                 item=items.apple,
                                 quantity=3,
                             ),
-                            types.Items(
-                                item=items.egg,
-                                quantity=1
-                            )
+                            types.Items(item=items.egg, quantity=1),
                         ],
                     )
-                ]
+                ],
             ),
         ]
     )

@@ -1,6 +1,6 @@
+from sqlalchemy import Column, DateTime, ForeignKey, Integer, String
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
-from sqlalchemy.orm import relationship, backref
+from sqlalchemy.orm import backref, relationship
 
 
 def make_declarative_base():
@@ -21,28 +21,33 @@ Base = make_declarative_base()
 
 
 class Item(Base):
-    __tablename__ = 'item'
+    __tablename__ = "item"
 
     id = Column(Integer, primary_key=True)
     name = Column(String, nullable=False)
     item_type = Column(String, nullable=False)
     health_points = Column(Integer, nullable=False)
     collection_method = Column(String, nullable=False)
-    adventure_log_discovered_items = Column(Integer, ForeignKey('adventure_log.id'))
-    adventure_log_discoverable_items = Column(Integer, ForeignKey('adventure_log.id'))
+    adventure_log_discovered_items = Column(
+        Integer, ForeignKey("adventure_log.id")
+    )
+    adventure_log_discoverable_items = Column(
+        Integer, ForeignKey("adventure_log.id")
+    )
 
 
 class Items(Base):
     """An inventory of items"""
-    __tablename__ = 'items'
+
+    __tablename__ = "items"
 
     id = Column(Integer, primary_key=True)
     quantity = Column(Integer, nullable=False)
-    item_id = Column(Integer, ForeignKey('item.id'))
+    item_id = Column(Integer, ForeignKey("item.id"))
     item = relationship("Item", uselist=False)
 
-    component_id = Column(Integer, ForeignKey('component.id'))
-    inventory_id = Column(Integer, ForeignKey('inventory.id'))
+    component_id = Column(Integer, ForeignKey("component.id"))
+    inventory_id = Column(Integer, ForeignKey("inventory.id"))
 
 
 class Component(Base):
@@ -53,12 +58,13 @@ class Component(Base):
     description = Column(String, nullable=False)
     items = relationship("Items", backref="component")
 
-    location_id = Column(Integer, ForeignKey('location.id'))
+    location_id = Column(Integer, ForeignKey("location.id"))
 
 
 class Location(Base):
     """The state of a location on the map"""
-    __tablename__ = 'location'
+
+    __tablename__ = "location"
 
     id = Column(Integer, primary_key=True, index=True)
     x_coordinate = Column(Integer, nullable=False)
@@ -69,11 +75,15 @@ class Location(Base):
     components = relationship("Component", backref="location")
 
     game = relationship("Game", back_populates="location")
-    game_id = Column(Integer, ForeignKey('game.id'))
-    map_id = Column(Integer, ForeignKey('map.id'))
+    game_id = Column(Integer, ForeignKey("game.id"))
+    map_id = Column(Integer, ForeignKey("map.id"))
 
-    adventure_log_discovered_locations = Column(Integer, ForeignKey('adventure_log.id'))
-    adventure_log_discoverable_locations = Column(Integer, ForeignKey('adventure_log.id'))
+    adventure_log_discovered_locations = Column(
+        Integer, ForeignKey("adventure_log.id")
+    )
+    adventure_log_discoverable_locations = Column(
+        Integer, ForeignKey("adventure_log.id")
+    )
 
 
 class Inventory(Base):
@@ -82,7 +92,7 @@ class Inventory(Base):
     items = relationship("Items", backref="inventory")
 
     game = relationship("Game", back_populates="inventory")
-    game_id = Column(Integer, ForeignKey('game.id'))
+    game_id = Column(Integer, ForeignKey("game.id"))
 
 
 class Game(Base):
@@ -90,7 +100,8 @@ class Game(Base):
     The state of the entire game: player, inventory and location
     The equivalent of "saves".
     """
-    __tablename__ = 'game'
+
+    __tablename__ = "game"
 
     id = Column(Integer, primary_key=True, index=True)
     health_points = Column(Integer, nullable=False)
@@ -105,7 +116,7 @@ class Map(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     locations = relationship("Location", backref="map")
-    game_id = Column(Integer, ForeignKey('game.id'))
+    game_id = Column(Integer, ForeignKey("game.id"))
     game = relationship("Game", backref=backref("map", uselist=False))
 
 
@@ -114,10 +125,20 @@ class AdventureLog(Base):
 
     id = Column(Integer, primary_key=True, index=True)
 
-    discovered_locations = relationship("Location", foreign_keys=Location.adventure_log_discovered_locations)
-    discoverable_locations = relationship("Location", foreign_keys=Location.adventure_log_discoverable_locations)
-    discovered_items = relationship("Item", foreign_keys=Item.adventure_log_discovered_items)
-    discoverable_items = relationship("Item", foreign_keys=Item.adventure_log_discoverable_items)
+    discovered_locations = relationship(
+        "Location", foreign_keys=Location.adventure_log_discovered_locations
+    )
+    discoverable_locations = relationship(
+        "Location", foreign_keys=Location.adventure_log_discoverable_locations
+    )
+    discovered_items = relationship(
+        "Item", foreign_keys=Item.adventure_log_discovered_items
+    )
+    discoverable_items = relationship(
+        "Item", foreign_keys=Item.adventure_log_discoverable_items
+    )
 
-    game_id = Column(Integer, ForeignKey('game.id'))
-    game = relationship("Game", backref=backref("adventure_log", uselist=False))
+    game_id = Column(Integer, ForeignKey("game.id"))
+    game = relationship(
+        "Game", backref=backref("adventure_log", uselist=False)
+    )

@@ -3,12 +3,12 @@ from contextlib import contextmanager
 import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
-from sqlalchemy.engine import Engine
-from engine.adapters.api.app import create_app, AppConfig
 from sqlalchemy import create_engine
+from sqlalchemy.engine import Engine
 from sqlalchemy.orm import sessionmaker
-from engine.adapters.postgres.model import Base
 
+from engine.adapters.api.app import AppConfig, create_app
+from engine.adapters.postgres.model import Base
 
 eng = create_engine("postgresql:///griddle-earth")
 Session = sessionmaker(bind=eng)
@@ -34,9 +34,7 @@ def engine() -> Engine:
     eng.dispose()
     with session_scope() as conn:
         for table in Base.metadata.sorted_tables:
-            conn.execute(
-                f"TRUNCATE {table.name} RESTART IDENTITY CASCADE;"
-            )
+            conn.execute(f"TRUNCATE {table.name} RESTART IDENTITY CASCADE;")
 
 
 def create_test_app(

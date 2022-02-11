@@ -1,5 +1,7 @@
-from engine.core import types
 from typing import Union
+
+from engine.core import types
+
 from .helpers import get_component
 
 

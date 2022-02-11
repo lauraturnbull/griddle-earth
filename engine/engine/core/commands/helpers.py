@@ -1,15 +1,13 @@
 from typing import List
-from engine.core import types
+
 from fastapi import HTTPException
+
 from engine.adapters.postgres import persister
+from engine.core import types
 
 
 def get_noun_variants(noun: str) -> List[str]:
-    return [
-        noun,
-        noun + "s",
-        noun[:-1]
-    ]
+    return [noun, noun + "s", noun[:-1]]
 
 
 def get_component(
@@ -19,13 +17,12 @@ def get_component(
 
     component = next(
         (c for c in components if c.name.lower() in component_name_variants),
-        None
+        None,
     )
 
     if component is None:
         raise HTTPException(
-            status_code=422,
-            detail=f"Cannot find location {component_name}"
+            status_code=422, detail=f"Cannot find location {component_name}"
         )
 
     return component
@@ -36,13 +33,12 @@ def get_items(items_list: List[types.Items], item_name: str) -> types.Items:
 
     items = next(
         (i for i in items_list if i.item.name.lower() in items_name_variants),
-        None
+        None,
     )
 
     if items is None:
         raise HTTPException(
-            status_code=422,
-            detail=f"Cannot find any {item_name} to take"
+            status_code=422, detail=f"Cannot find any {item_name} to take"
         )
     return items
 
@@ -52,33 +48,30 @@ def move_item_to_inventory(
     game: types.Game,
     component_name: str,
     item_name: str,
-    take_all: bool = False
+    take_all: bool = False,
 ) -> types.Items:
 
     map_location = persister.get_map_location_by_coordinates(
-        session=session,
-        game_id=game.id,
-        coordinates=game.location.coordinates
+        session=session, game_id=game.id, coordinates=game.location.coordinates
     )
 
     map_component = get_component(
         components=map_location.components, component_name=component_name
     )
     # todo - need to assert we can "take" the item i.e not a rabbit etc
-    map_items = get_items(
-        items_list=map_component.items, item_name=item_name
-    )
+    map_items = get_items(items_list=map_component.items, item_name=item_name)
 
     inventory_items = next(
-        (i for i in game.inventory.items if i.item.name == map_items.item.name),
-        None
+        (
+            i
+            for i in game.inventory.items
+            if i.item.name == map_items.item.name
+        ),
+        None,
     )
 
     if inventory_items is None:
-        inventory_items = types.Items(
-            quantity=0,
-            item=map_items.item
-        )
+        inventory_items = types.Items(quantity=0, item=map_items.item)
         game.inventory.items.append(inventory_items)
 
     if take_all:
@@ -94,19 +87,11 @@ def move_item_to_inventory(
     game.location = map_location
 
     persister.update_map_location(
-        session,
-        game_id=game.id,
-        new_location_state=map_location
+        session, game_id=game.id, new_location_state=map_location
     )
-    persister.update_game(
-        session,
-        game_id=game.id,
-        new_game_state=game
-    )
+    persister.update_game(session, game_id=game.id, new_game_state=game)
 
     persister.update_adventure_log_discovered_items(
-        session,
-        game_id=game.id,
-        item=inventory_items.item
+        session, game_id=game.id, item=inventory_items.item
     )
     return inventory_items

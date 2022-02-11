@@ -12,5 +12,5 @@ def make_base_adventure_log(map: types.Map) -> types.AdventureLog:
 
     return types.AdventureLog(
         discoverable_locations=discoverable_locations,
-        discoverable_items=discoverable_items
+        discoverable_items=discoverable_items,
     )

@@ -1,5 +1,5 @@
-from engine.core import types
 from engine.adapters.postgres import persister
+from engine.core import types
 
 # n,e,s,w?
 DIRECTIONS = ["north", "east", "south", "west"]
@@ -39,6 +39,8 @@ def handle_command(
 
     persister.update_game(session, game_id=game.id, new_game_state=game)
 
-    persister.update_adventure_log_discovered_locations(session, game_id=game.id, location=game.location)
+    persister.update_adventure_log_discovered_locations(
+        session, game_id=game.id, location=game.location
+    )
 
     return new_location
