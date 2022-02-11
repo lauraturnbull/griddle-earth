@@ -46,7 +46,7 @@ def test_get_map_by_game_id(patched_map, client: TestClient):
 
 @freeze_time(frozen_time)
 @patch('engine.core.resources.base.map.make_base_map')
-def test_get_map_by_game_id(patched_map, client: TestClient):
+def test_get_adventure_log_by_game_id(patched_map, client: TestClient):
     # todo - this should have a different response type in future
     map = core.make_map()
     patched_map.return_value = map
