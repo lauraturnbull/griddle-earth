@@ -76,6 +76,7 @@ def get_game_adventure_log(
     game_id: int,
     session: Session = Depends(dependencies.session)
 ) -> types.AdventureLog:
+    # todo - change this to adventure log out
     adventure_log = persister.get_adventure_log_by_game_id(
         session, game_id=game_id
     )
