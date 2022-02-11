@@ -19,21 +19,15 @@ def make_declarative_base():
 
 Base = make_declarative_base()
 
-# todo - inventory
-# class Inventory(Base):
-#     ingredients = []  # fruit, veg, meat, fish, herbs, grains? +- hp
-#     dishes = []
-#     tools = []  # flint, knife, wood?
-
 
 class Item(Base):
     __tablename__ = 'item'
 
     id = Column(Integer, primary_key=True)
-    name = Column(String)
-    item_type = Column(String)
-    health_points = Column(Integer)
-    collection_method = Column(String)
+    name = Column(String, nullable=False)
+    item_type = Column(String, nullable=False)
+    health_points = Column(Integer, nullable=False)
+    collection_method = Column(String, nullable=False)
     adventure_log_discovered_items = Column(Integer, ForeignKey('adventure_log.id'))
     adventure_log_discoverable_items = Column(Integer, ForeignKey('adventure_log.id'))
 
@@ -43,7 +37,7 @@ class Items(Base):
     __tablename__ = 'items'
 
     id = Column(Integer, primary_key=True)
-    quantity = Column(Integer)
+    quantity = Column(Integer, nullable=False)
     item_id = Column(Integer, ForeignKey('item.id'))
     item = relationship("Item", uselist=False)
 
@@ -55,8 +49,8 @@ class Component(Base):
     __tablename__ = "component"
 
     id = Column(Integer, primary_key=True)
-    name = Column(String)
-    description = Column(String)
+    name = Column(String, nullable=False)
+    description = Column(String, nullable=False)
     items = relationship("Items", backref="component")
 
     location_id = Column(Integer, ForeignKey('location.id'))
@@ -67,11 +61,11 @@ class Location(Base):
     __tablename__ = 'location'
 
     id = Column(Integer, primary_key=True, index=True)
-    x_coordinate = Column(Integer)
-    y_coordinate = Column(Integer)
-    name = Column(String)
-    description = Column(String)
-    region = Column(String)
+    x_coordinate = Column(Integer, nullable=False)
+    y_coordinate = Column(Integer, nullable=False)
+    name = Column(String, nullable=False)
+    description = Column(String, nullable=False)
+    region = Column(String, nullable=False)
     components = relationship("Component", backref="location")
 
     game = relationship("Game", back_populates="location")
@@ -99,8 +93,8 @@ class Game(Base):
     __tablename__ = 'game'
 
     id = Column(Integer, primary_key=True, index=True)
-    health_points = Column(Integer)
-    created = Column(DateTime)
+    health_points = Column(Integer, nullable=False)
+    created = Column(DateTime, nullable=False)
 
     location = relationship("Location", back_populates="game", uselist=False)
     inventory = relationship("Inventory", back_populates="game", uselist=False)
