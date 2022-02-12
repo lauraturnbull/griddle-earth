@@ -2,12 +2,20 @@ from datetime import datetime
 from enum import Enum
 from typing import List, Optional
 
+from aenum import MultiValueEnum
 from pydantic import BaseModel
 
 
 class Command(BaseModel):
     action: str
     context: List[str]
+
+
+class Ordinal(MultiValueEnum):
+    north = "north", "n"
+    east = "east", "e"
+    south = "south", "s"
+    west = "west", "w"
 
 
 class ItemType(str, Enum):
