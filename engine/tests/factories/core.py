@@ -118,3 +118,27 @@ def make_adventure_log(
         discoverable_items=discoverable_items,
         discovered_items=discovered_items,
     )
+
+
+def make_command(
+    action: str = "move",
+    context: str = "north",
+) -> types.Command:
+    return types.Command(action=action, context=context.lower().split())
+
+
+def make_new_game(
+    health_points: int = 1000,
+    inventory: Optional[types.Inventory] = None,
+    location: Optional[types.Location] = None,
+    created: datetime = frozen_now,
+) -> types.NewGame:
+    if inventory is None:
+        inventory = make_inventory()
+
+    return types.NewGame(
+        health_points=health_points,
+        inventory=inventory,
+        location=location,
+        created=created,
+    )

@@ -33,9 +33,17 @@ def session_scope():
 def engine() -> Any:
     yield eng
     eng.dispose()
-    with session_scope() as conn:
+    with session_scope() as session:
         for table in Base.metadata.sorted_tables:
-            conn.execute(f"TRUNCATE {table.name} RESTART IDENTITY CASCADE;")
+            session.execute(f"TRUNCATE {table.name} RESTART IDENTITY CASCADE;")
+
+
+@pytest.fixture()
+def session():
+    with session_scope() as session:
+        yield session
+        for table in Base.metadata.sorted_tables:
+            session.execute(f"TRUNCATE {table.name} RESTART IDENTITY CASCADE;")
 
 
 def create_test_app(
