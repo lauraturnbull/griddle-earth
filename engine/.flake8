@@ -1,0 +1,10 @@
+[flake8]
+count = True
+exclude =
+    venv
+    migrations
+max-complexity = 10
+max-line-length = 79
+show-source = True
+statistics = True
+ignore = E203
