@@ -1,7 +1,7 @@
 from contextlib import contextmanager
 from typing import Iterator
 
-from fastapi import Depends, HTTPException, Query
+from fastapi import Depends
 from sqlalchemy.orm import Session, sessionmaker
 
 

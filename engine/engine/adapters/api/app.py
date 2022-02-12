@@ -1,6 +1,6 @@
 import logging
 from os import environ, path
-from typing import Optional
+from typing import Any, Dict, Optional
 
 import attr
 import yaml
@@ -36,7 +36,7 @@ def get_config() -> AppConfig:
 
 def setup_app(
     app: FastAPI,
-    dependency_overrides: Optional[dict] = None,
+    dependency_overrides: Optional[Dict[Any, Any]] = None,
 ) -> FastAPI:
 
     if dependency_overrides:

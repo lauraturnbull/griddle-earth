@@ -1,4 +1,5 @@
 from fastapi import HTTPException
+from sqlalchemy.orm import Session
 
 from engine.core import types
 
@@ -6,7 +7,7 @@ from .helpers import move_item_to_inventory
 
 
 def handle_command(
-    session, game: types.Game, command: types.Command
+    session: Session, game: types.Game, command: types.Command
 ) -> types.Items:
 
     """

@@ -11,7 +11,9 @@ def make_base_map() -> types.Map:
                     y_coordinate=0,
                 ),
                 name="No Place Like Home",
-                description="You're at home, the best kitchen in all Griddle Earth. Where better to prepare meals from ingredients around the world.",
+                description="You're at home, the best kitchen in all Griddle "
+                "Earth. Where better to prepare meals from "
+                "ingredients around the world.",
                 region=types.Region.home_plains,
                 components=[],
             ),
@@ -21,12 +23,14 @@ def make_base_map() -> types.Map:
                     y_coordinate=0,
                 ),
                 name="Farmer Tam's Place",
-                description="You're at Farmer Tam's place, the largest orchards in the Home Plains.",
+                description="You're at Farmer Tam's place, the largest"
+                "orchards in the Home Plains.",
                 region=types.Region.home_plains,
                 components=[
                     types.Component(
                         name="Trees",
-                        description="The trees are bursting with apples. There are also a few birds nests.",
+                        description="The trees are bursting with apples. There"
+                        " are also a few birds nests.",
                         items=[
                             types.Items(
                                 item=items.apple,

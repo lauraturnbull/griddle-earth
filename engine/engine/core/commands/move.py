@@ -1,3 +1,6 @@
+from fastapi import HTTPException
+from sqlalchemy.orm import Session
+
 from engine.adapters.postgres import persister
 from engine.core import types
 
@@ -6,13 +9,12 @@ DIRECTIONS = ["north", "east", "south", "west"]
 
 
 def handle_command(
-    session, game: types.Game, command: types.Command
+    session: Session, game: types.Game, command: types.Command
 ) -> types.Location:
     if game.location is None:
-        return persister.get_map_location_by_coordinates(
-            session,
-            game_id=game.id,
-            coordinates=types.Coordinates(x_coordinate=0, y_coordinate=0),
+        raise HTTPException(
+            status_code=422,
+            detail=("No location - game not started"),
         )
     coordinates = game.location.coordinates
     for direction in command.context:
@@ -32,6 +34,11 @@ def handle_command(
     new_location = persister.get_map_location_by_coordinates(
         session, game_id=game.id, coordinates=coordinates
     )
+    if new_location is None:  # todo - return something instead of raise
+        raise HTTPException(
+            status_code=422,
+            detail=("You cannot go that way"),
+        )
 
     # update the game state
     game.location = new_location

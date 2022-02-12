@@ -40,7 +40,7 @@ def make_item(
     name: str = "apple",
     item_type: types.ItemType = types.ItemType.fruit,
     health_points: int = 50,
-    collection_method: types.ItemCollectionMethod = types.ItemCollectionMethod.forage,
+    collection_method: types.ItemCollectionMethod = types.ItemCollectionMethod.forage,  # noqa E501
 ) -> types.Item:
     return types.Item(
         name=name,

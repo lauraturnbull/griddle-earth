@@ -1,5 +1,7 @@
 from datetime import datetime, timezone
+from typing import Optional, Union
 
+from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
 from engine.core import types
@@ -46,7 +48,7 @@ def inventory_app_to_db(inventory: types.Inventory) -> model.Inventory:
     return model.Inventory(items=[items_app_to_db(i) for i in inventory.items])
 
 
-def game_app_to_db(game: types.Game) -> model.Game:
+def game_app_to_db(game: Union[types.Game, types.NewGame]) -> model.Game:
     return model.Game(
         location=location_app_to_db(game.location) if game.location else None,
         inventory=inventory_app_to_db(game.inventory),
@@ -180,14 +182,16 @@ def create_new_game(
     return game_db_to_app(game_db)
 
 
-def get_game_by_id(session, game_id: int) -> types.Game:
+def get_game_by_id(session: Session, game_id: int) -> Optional[types.Game]:
     qry = session.query(model.Game).filter(model.Game.id == game_id)
     game_db = qry.one_or_none()
+    if game_db is None:
+        return None
     return game_db_to_app(game_db)
 
 
 def update_game(
-    session, game_id: int, new_game_state: types.Game
+    session: Session, game_id: int, new_game_state: types.Game
 ) -> types.Game:
     new_game_db = game_app_to_db(new_game_state)
     new_game_db.id = game_id
@@ -198,46 +202,51 @@ def update_game(
 
 
 def get_map_by_game_id(
-    session,
+    session: Session,
     game_id: int,
-) -> types.Map:
+) -> Optional[types.Map]:
     qry = (
         session.query(model.Map).filter(model.Map.game_id == game_id).limit(1)
     )
     map_db = qry.one_or_none()
+    if map_db is None:
+        return None
     return map_db_to_app(map_db)
 
 
 def get_adventure_log_by_game_id(
-    session,
+    session: Session,
     game_id: int,
-) -> types.AdventureLog:
-    qry = (
-        session.query(model.AdventureLog)
-        .filter(model.AdventureLog.game_id == game_id)
-        .limit(1)
+) -> Optional[types.AdventureLog]:
+    qry = session.query(model.AdventureLog).filter(
+        model.AdventureLog.game_id == game_id
     )
     adventure_log_db = qry.one_or_none()
+    if adventure_log_db is None:
+        return None
     return adventure_log_db_to_app(adventure_log_db)
 
 
 def update_adventure_log_discovered_locations(
-    session,
+    session: Session,
     game_id: int,
     location: types.Location,
-):
-    qry = (
-        session.query(model.AdventureLog)
-        .filter(model.AdventureLog.game_id == game_id)
-        .limit(1)
+) -> None:
+    qry = session.query(model.AdventureLog).filter(
+        model.AdventureLog.game_id == game_id
     )
     adventure_log_db = qry.one_or_none()
+    if adventure_log_db is None:
+        raise HTTPException(
+            status_code=422,
+            detail=("No adventure log to update"),
+        )
     adventure_log = adventure_log_db_to_app(adventure_log_db)
     existing_location = next(
         (
-            l
-            for l in adventure_log.discovered_locations
-            if l.coordinates == location.coordinates
+            loc
+            for loc in adventure_log.discovered_locations
+            if loc.coordinates == location.coordinates
         ),
         None,
     )
@@ -250,14 +259,17 @@ def update_adventure_log_discovered_locations(
 
 
 def update_adventure_log_discovered_items(
-    session, game_id: int, item: types.Item
-):
-    qry = (
-        session.query(model.AdventureLog)
-        .filter(model.AdventureLog.game_id == game_id)
-        .limit(1)
+    session: Session, game_id: int, item: types.Item
+) -> None:
+    qry = session.query(model.AdventureLog).filter(
+        model.AdventureLog.game_id == game_id
     )
     adventure_log_db = qry.one_or_none()
+    if adventure_log_db is None:
+        raise HTTPException(
+            status_code=422,
+            detail=("No adventure log to update"),
+        )
     adventure_log = adventure_log_db_to_app(adventure_log_db)
     existing_item = next(
         (i for i in adventure_log.discovered_items if i == item), None
@@ -269,8 +281,8 @@ def update_adventure_log_discovered_items(
 
 
 def get_map_location_by_coordinates(
-    session, game_id: int, coordinates: types.Coordinates
-) -> types.Location:
+    session: Session, game_id: int, coordinates: types.Coordinates
+) -> Optional[types.Location]:
 
     qry = (
         session.query(model.Location)
@@ -280,13 +292,14 @@ def get_map_location_by_coordinates(
         .filter(model.Location.y_coordinate == coordinates.y_coordinate)
     )
 
-    # todo - handle none scenario
     location_db = qry.one_or_none()
+    if location_db is None:
+        return None
     return location_db_to_app(location_db)
 
 
 def update_map_location(
-    session, game_id: int, new_location_state: types.Location
+    session: Session, game_id: int, new_location_state: types.Location
 ) -> types.Location:
 
     # existing
@@ -296,11 +309,11 @@ def update_map_location(
         .filter(model.Map.game_id == game_id)
         .filter(
             model.Location.x_coordinate
-            == new_location_state.coordinates.x_coordinate
+            == new_location_state.coordinates.x_coordinate  # noqa W504
         )
         .filter(
             model.Location.y_coordinate
-            == new_location_state.coordinates.y_coordinate
+            == new_location_state.coordinates.y_coordinate  # noqa W504
         )
     )
     location_db = qry.one_or_none()

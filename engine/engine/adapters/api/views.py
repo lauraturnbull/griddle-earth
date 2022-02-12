@@ -1,6 +1,7 @@
 from datetime import datetime, timezone
+from typing import Any, Optional
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from engine.adapters.postgres import persister
@@ -30,8 +31,6 @@ def create_new_game(
         health_points=1000,
         inventory=types.Inventory(),
         created=get_now(),
-        name="Hungry Beginnings",
-        description="The very beginning of your journey.",
     )
     base_map = map.make_base_map()
     base_adventure_log = adventure_log.make_base_adventure_log(map=base_map)
@@ -41,10 +40,13 @@ def create_new_game(
     return new_game
 
 
+# todo - handle missing resources
+
+
 @v1.get("/game/{game_id}")
 def get_game(
     game_id: int, session: Session = Depends(dependencies.session)
-) -> types.Game:
+) -> Optional[types.Game]:
     """
     Returns the current state of the player including:
     - location
@@ -59,7 +61,7 @@ def get_game(
 @v1.get("/game/{game_id}/map")
 def get_game_map(
     game_id: int, session: Session = Depends(dependencies.session)
-) -> types.Map:
+) -> Optional[types.Map]:
     map = persister.get_map_by_game_id(session, game_id=game_id)
     return map
 
@@ -67,7 +69,7 @@ def get_game_map(
 @v1.get("/game/{game_id}/adventure-log")
 def get_game_adventure_log(
     game_id: int, session: Session = Depends(dependencies.session)
-) -> types.AdventureLog:
+) -> Optional[types.AdventureLog]:
     # todo - change this to adventure log out
     adventure_log = persister.get_adventure_log_by_game_id(
         session, game_id=game_id
@@ -78,7 +80,7 @@ def get_game_adventure_log(
 @v1.post("/game/{game_id}/command")
 def handle_command(
     game_id: int, input: str, session: Session = Depends(dependencies.session)
-) -> types.Game:
+) -> Any:
     """
     Handles interaction with a scene
     validates
@@ -86,5 +88,9 @@ def handle_command(
     """
     parser = command_parser.CommandParser(session, input)
     current_state = persister.get_game_by_id(session, game_id)
+    if current_state is None:
+        raise HTTPException(
+            status_code=422, detail=f"game {game_id} not found"
+        )
     new_state = parser.handle_command(current_state)
     return new_state

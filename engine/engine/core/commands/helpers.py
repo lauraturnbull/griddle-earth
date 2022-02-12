@@ -1,6 +1,7 @@
 from typing import List
 
 from fastapi import HTTPException
+from sqlalchemy.orm import Session
 
 from engine.adapters.postgres import persister
 from engine.core import types
@@ -44,16 +45,30 @@ def get_items(items_list: List[types.Items], item_name: str) -> types.Items:
 
 
 def move_item_to_inventory(
-    session,
+    session: Session,
     game: types.Game,
     component_name: str,
     item_name: str,
     take_all: bool = False,
 ) -> types.Items:
 
+    if game.location is None:
+        raise HTTPException(
+            status_code=422,
+            detail=("No location - game not started"),
+        )
     map_location = persister.get_map_location_by_coordinates(
         session=session, game_id=game.id, coordinates=game.location.coordinates
     )
+    if map_location is None:
+        raise HTTPException(
+            status_code=422,
+            detail=(
+                f"Could not find location at "
+                f"x={game.location.coordinates.x_coordinate}, "
+                f"y={game.location.coordinates.y_coordinate}"
+            ),
+        )
 
     map_component = get_component(
         components=map_location.components, component_name=component_name

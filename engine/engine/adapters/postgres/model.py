@@ -1,4 +1,6 @@
-from sqlalchemy import Column, DateTime, ForeignKey, Integer, String
+from typing import Any
+
+from sqlalchemy import Column, DateTime, ForeignKey, Integer, MetaData, String
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import backref, relationship
 
@@ -17,7 +19,8 @@ def make_declarative_base():
     return Base
 
 
-Base = make_declarative_base()
+metadata = MetaData()
+Base = make_declarative_base()  # type: Any
 
 
 class Item(Base):

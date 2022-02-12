@@ -1,4 +1,5 @@
 from contextlib import contextmanager
+from typing import Any
 
 import pytest
 from fastapi import FastAPI
@@ -21,7 +22,7 @@ def session_scope():
     try:
         yield session
         session.commit()
-    except:
+    except Exception:
         session.rollback()
         raise
     finally:
@@ -29,7 +30,7 @@ def session_scope():
 
 
 @pytest.fixture()
-def engine() -> Engine:
+def engine() -> Any:
     yield eng
     eng.dispose()
     with session_scope() as conn:
@@ -52,5 +53,5 @@ def app(engine):
 
 
 @pytest.fixture
-def client(app: FastAPI):
+def client(app: FastAPI) -> Any:
     yield TestClient(app, raise_server_exceptions=True)

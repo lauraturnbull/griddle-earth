@@ -1,4 +1,4 @@
-from typing import List
+from typing import Any, List
 
 from fastapi import HTTPException
 
@@ -36,14 +36,14 @@ class CommandParser:
 
         return action
 
-    def normalise_context(self, command) -> List[str]:
+    def normalise_context(self, command: str) -> List[str]:
         try:
             context = command.lower().split(self.action, 1)[1].lstrip()
             return [w for w in context.split() if w not in null_words]
         except IndexError:
             return []
 
-    def handle_command(self, game: types.Game):
+    def handle_command(self, game: types.Game) -> Any:
         command = types.Command(action=self.action, context=self.context)
 
         if self.action == "start":
@@ -59,7 +59,7 @@ class CommandParser:
             )
         if self.action == "look":
             # read only, no update
-            return look.handle_command(location=game.location, command=command)
+            return look.handle_command(game=game, command=command)
         if self.action == "take":
             return take.handle_command(
                 session=self.session, game=game, command=command
