@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 from engine.adapters.postgres import persister
 from engine.core import types
 from engine.core.commands import move
-from tests.factories import core
+from tests.factories import core, helpers
 
 frozen_time = datetime(2022, 2, 2)
 
@@ -16,29 +16,27 @@ frozen_time = datetime(2022, 2, 2)
 @freeze_time(frozen_time)
 def test_move(session: Session) -> None:
     # make game and map and add to db
-    new_game = core.make_new_game(
-        location=core.make_location(
-            coordinates=types.Coordinates(x_coordinate=0, y_coordinate=0)
-        )
-    )
-    map = core.make_map(
-        locations=[
-            core.make_location(
-                coordinates=types.Coordinates(x_coordinate=0, y_coordinate=0)
-            ),
-            core.make_location(
-                coordinates=types.Coordinates(x_coordinate=0, y_coordinate=1)
-            ),
-            core.make_location(
-                coordinates=types.Coordinates(x_coordinate=1, y_coordinate=1)
-            ),
-        ]
-    )
-    game = persister.create_new_game(
-        session,
-        game=new_game,
-        map=map,
-        adventure_log=core.make_adventure_log(),
+    game = helpers.make_game_in_map_location(
+        session=session,
+        new_map=core.make_new_map(
+            locations=[
+                core.make_new_location(
+                    coordinates=types.Coordinates(
+                        x_coordinate=0, y_coordinate=0
+                    )
+                ),
+                core.make_new_location(
+                    coordinates=types.Coordinates(
+                        x_coordinate=0, y_coordinate=1
+                    )
+                ),
+                core.make_new_location(
+                    coordinates=types.Coordinates(
+                        x_coordinate=1, y_coordinate=1
+                    )
+                ),
+            ]
+        ),
     )
 
     # move
@@ -60,7 +58,7 @@ def test_move(session: Session) -> None:
     ].coordinates == types.Coordinates(x_coordinate=1, y_coordinate=1)
 
     # check hp has dropped
-    assert game.health_points == new_game.health_points - 50
+    assert game.health_points == 950
 
 
 @freeze_time(frozen_time)
@@ -72,23 +70,22 @@ def test_handles_variants(session: Session, direction: str) -> None:
     """
 
     # make game and map and add to db
-    new_game = core.make_new_game(
-        location=core.make_location(
-            coordinates=types.Coordinates(x_coordinate=0, y_coordinate=0)
-        )
-    )
-    map = core.make_map(
-        locations=[
-            core.make_location(
-                coordinates=types.Coordinates(x_coordinate=0, y_coordinate=1)
-            ),
-        ]
-    )
-    game = persister.create_new_game(
-        session,
-        game=new_game,
-        map=map,
-        adventure_log=core.make_adventure_log(),
+    game = helpers.make_game_in_map_location(
+        session=session,
+        new_map=core.make_new_map(
+            locations=[
+                core.make_new_location(
+                    coordinates=types.Coordinates(
+                        x_coordinate=0, y_coordinate=0
+                    )
+                ),
+                core.make_new_location(
+                    coordinates=types.Coordinates(
+                        x_coordinate=0, y_coordinate=1
+                    )
+                ),
+            ]
+        ),
     )
 
     # move
@@ -105,18 +102,7 @@ def test_handles_variants(session: Session, direction: str) -> None:
 @freeze_time(frozen_time)
 def unknown_direction(session: Session) -> None:
     # make game and map and add to db
-    new_game = core.make_new_game(
-        location=core.make_location(
-            coordinates=types.Coordinates(x_coordinate=0, y_coordinate=0)
-        )
-    )
-    map = core.make_map()
-    game = persister.create_new_game(
-        session,
-        game=new_game,
-        map=map,
-        adventure_log=core.make_adventure_log(),
-    )
+    game = helpers.make_game_in_map_location(session)
     # in future will be a different exception/response
     with pytest.raises(HTTPException):
         move.handle_command(
@@ -129,19 +115,7 @@ def unknown_direction(session: Session) -> None:
 @freeze_time(frozen_time)
 def test_move_raises_on_no_location(session: Session) -> None:
     # make game and map and add to db
-    new_game = core.make_new_game(
-        location=core.make_location(
-            coordinates=types.Coordinates(x_coordinate=0, y_coordinate=0)
-        )
-    )
-    # only has 0,0
-    map = core.make_map()
-    game = persister.create_new_game(
-        session,
-        game=new_game,
-        map=map,
-        adventure_log=core.make_adventure_log(),
-    )
+    game = helpers.make_game_in_map_location(session)
     # in future will be a different exception/response
     with pytest.raises(HTTPException):
         move.handle_command(
