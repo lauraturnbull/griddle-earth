@@ -7,13 +7,7 @@ from engine.core import types
 
 from . import look, move, take, trap
 
-# pop list of common fluff words
-# or just grab from known list of items?
-# there should only be one item per list
 null_words = ["the", "a", "an", "at"]
-
-# take? map to same action as grab
-actions = ["take", "look", "move", "use", "start", "set trap"]
 
 
 class CommandParser:
@@ -26,12 +20,16 @@ class CommandParser:
     def normalise_action(command: str) -> str:
         # maybe need to pop out null_words before getting action
         # e.g. set a trap
-        action = next((a for a in actions if a in command), None)
+        action = next(
+            (types.Action(a) for a in types.Action.values() if a in command),
+            None,
+        )
         if action is None:
+            # todo give proper list of actions
             raise HTTPException(
                 status_code=422,
                 detail=f"{action} is not a valid action. Please choose from:"
-                f" {', '.join(actions)}",
+                f" {', '.join(types.Action.values())}",
             )
 
         return action

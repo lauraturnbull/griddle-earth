@@ -6,9 +6,16 @@ from aenum import MultiValueEnum
 from pydantic import BaseModel
 
 
-class Command(BaseModel):
-    action: str
-    context: List[str]
+class Action(MultiValueEnum):
+    take = "take", "grab", "t"
+    look = "look", "l"
+    move = "move", "go", "m"
+    start = "start"
+    set_trap = "set trap"
+
+    @classmethod
+    def values(cls):
+        return [function.value for function in list(cls)]
 
 
 class Ordinal(MultiValueEnum):
@@ -29,6 +36,25 @@ class ItemType(str, Enum):
 class ItemCollectionMethod(str, Enum):
     hunt = "hunt"
     forage = "forage"
+
+
+class Region(str, Enum):
+    wetlands = ("wetlands",)
+    mountains = ("mountains",)
+    forest = ("forest",)
+    desert = ("desert",)
+    home_plains = "Home Plains"
+
+
+# input types
+
+
+class Command(BaseModel):
+    action: str
+    context: List[str]
+
+
+# "core" types - returned from db
 
 
 class Item(BaseModel):
