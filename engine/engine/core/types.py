@@ -117,6 +117,7 @@ class Map(BaseModel):
 class AdventureLog(BaseModel):
     """Raw locations/items discovered - for db"""
 
+    id: int
     discovered_locations: List[Location] = []
     discoverable_locations: List[Location]
     discovered_items: List[Item] = []
@@ -170,7 +171,7 @@ class NewAdventureLog(BaseModel):
 
 
 class NewInventory(BaseModel):
-    items: List[Items] = []
+    items: List[NewItems] = []
 
 
 class NewGame(BaseModel):

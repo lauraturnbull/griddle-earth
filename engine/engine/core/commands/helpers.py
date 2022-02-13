@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional, Union
 
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
@@ -50,7 +50,7 @@ def move_item_to_inventory(
     component_name: str,
     item_name: str,
     take_all: bool = False,
-) -> types.Items:
+) -> Union[types.Items, types.NewItems]:
 
     if game.location is None:
         raise HTTPException(
@@ -76,6 +76,7 @@ def move_item_to_inventory(
     # todo - need to assert we can "take" the item i.e not a rabbit etc
     map_items = get_items(items_list=map_component.items, item_name=item_name)
 
+    inventory_items: Optional[Union[types.Items, types.NewItems]]
     inventory_items = next(
         (
             i
@@ -86,8 +87,11 @@ def move_item_to_inventory(
     )
 
     if inventory_items is None:
-        inventory_items = types.NewItems(quantity=0, item=map_items.item)
-        game.inventory.items.append(inventory_items)
+        inventory_items = types.NewItems(
+            quantity=0, item=types.NewItem(**map_items.item.dict())
+        )
+        # shouts when adding for the first time
+        game.inventory.items.append(inventory_items)  # type: ignore
 
     if take_all:
         inventory_items.quantity += map_items.quantity
@@ -109,4 +113,5 @@ def move_item_to_inventory(
     persister.update_adventure_log_discovered_items(
         session, game_id=game.id, item=inventory_items.item
     )
+    # todo - update to return type
     return inventory_items

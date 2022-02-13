@@ -14,7 +14,7 @@ def get_now() -> datetime:
 
 
 # app to db
-def item_app_to_db(item: types.Item) -> model.Item:
+def item_app_to_db(item: Union[types.Item, types.NewItem]) -> model.Item:
     return model.Item(
         item_type=item.item_type.value,
         collection_method=item.collection_method.value,
@@ -22,13 +22,15 @@ def item_app_to_db(item: types.Item) -> model.Item:
     )
 
 
-def items_app_to_db(items: types.Items) -> model.Items:
+def items_app_to_db(items: Union[types.Items, types.NewItems]) -> model.Items:
     return model.Items(
         item=item_app_to_db(items.item), **items.dict(exclude={"item"})
     )
 
 
-def component_app_to_db(component: types.Component) -> model.Component:
+def component_app_to_db(
+    component: Union[types.Component, types.NewComponent]
+) -> model.Component:
     return model.Component(
         items=[items_app_to_db(i) for i in component.items],
         **component.dict(exclude={"items"}),
@@ -36,7 +38,7 @@ def component_app_to_db(component: types.Component) -> model.Component:
 
 
 def location_app_to_db(
-    location: [types.Location, types.NewLocation]
+    location: Union[types.Location, types.NewLocation]
 ) -> model.Location:
     return model.Location(
         x_coordinate=location.coordinates.x_coordinate,
@@ -46,7 +48,9 @@ def location_app_to_db(
     )
 
 
-def inventory_app_to_db(inventory: types.Inventory) -> model.Inventory:
+def inventory_app_to_db(
+    inventory: Union[types.Inventory, types.NewInventory]
+) -> model.Inventory:
     return model.Inventory(
         items=[items_app_to_db(i) for i in inventory.items],
         **inventory.dict(exclude={"items"}),
@@ -162,6 +166,7 @@ def adventure_log_db_to_app(
     adventure_log: Union[model.AdventureLog],
 ) -> types.AdventureLog:
     return types.AdventureLog(
+        id=adventure_log.id,
         discovered_locations=[
             location_db_to_app(i) for i in adventure_log.discovered_locations
         ],
@@ -219,8 +224,8 @@ def update_game(
     new_game_db = game_app_to_db(new_game_state)
     new_game_db.id = game_id
     session.merge(new_game_db)
-    session.flush()
     session.commit()
+    session.flush()
     return
 
 
@@ -275,14 +280,14 @@ def update_adventure_log_discovered_locations(
     )
     if not existing_location:
         adventure_log_db.discovered_locations.append(
-            location_app_to_db(location)
+            location_app_to_db(types.NewLocation(**location.dict()))
         )
         session.commit()
         session.flush()
 
 
 def update_adventure_log_discovered_items(
-    session: Session, game_id: int, item: types.Item
+    session: Session, game_id: int, item: Union[types.Item, types.NewItem]
 ) -> None:
     qry = session.query(model.AdventureLog).filter(
         model.AdventureLog.game_id == game_id
@@ -295,10 +300,13 @@ def update_adventure_log_discovered_items(
         )
     adventure_log = adventure_log_db_to_app(adventure_log_db)
     existing_item = next(
-        (i for i in adventure_log.discovered_items if i == item), None
+        (i for i in adventure_log.discovered_items if i.name == item.name),
+        None,
     )
     if not existing_item:
-        adventure_log_db.discovered_items.append(item_app_to_db(item))
+        adventure_log_db.discovered_items.append(
+            item_app_to_db(types.NewItem(**item.dict()))
+        )
         session.commit()
         session.flush()
 

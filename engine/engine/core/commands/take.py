@@ -1,3 +1,5 @@
+from typing import Union
+
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
@@ -8,7 +10,7 @@ from .helpers import move_item_to_inventory
 
 def handle_command(
     session: Session, game: types.Game, command: types.Command
-) -> types.Items:
+) -> Union[types.Items, types.NewItems]:
 
     """
     Input pattern is like:
