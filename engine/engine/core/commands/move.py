@@ -10,7 +10,7 @@ DIRECTIONS = ["north", "east", "south", "west"]
 
 def handle_command(
     session: Session, game: types.Game, command: types.Command
-) -> types.Location:
+) -> types.LocationOut:
     if game.location is None:
         raise HTTPException(
             status_code=422,
@@ -47,4 +47,4 @@ def handle_command(
         session, game_id=game.id, location=game.location
     )
 
-    return new_location
+    return types.LocationOut(**game.location.dict())

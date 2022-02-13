@@ -50,7 +50,6 @@ class CommandParser:
                 [Session, types.Game, types.Command],
                 Union[
                     types.LocationOut,
-                    types.Location,
                     types.ComponentNameList,
                     types.ComponentDescription,
                     types.Items,

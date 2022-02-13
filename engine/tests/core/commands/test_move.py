@@ -16,7 +16,7 @@ frozen_time = datetime(2022, 2, 2)
 @freeze_time(frozen_time)
 def test_move(session: Session) -> None:
     # make game and map and add to db
-    game = helpers.make_game_in_map_location(
+    new_game = helpers.make_game_in_map_location(
         session=session,
         new_map=core.make_new_map(
             locations=[
@@ -42,15 +42,21 @@ def test_move(session: Session) -> None:
     # move
     resp = move.handle_command(
         session=session,
-        game=game,
+        game=new_game,
         command=core.make_command(action="move", context="north east"),
     )
-    assert resp.coordinates == types.Coordinates(
+    assert type(resp) is types.LocationOut
+    game = persister.get_game_by_id(session, new_game.id)
+    assert game is not None
+    assert game.location is not None
+    assert game.location.coordinates == types.Coordinates(
         x_coordinate=1, y_coordinate=1
     )
 
     # check adventure log has been updated
-    adventure_log = persister.get_adventure_log_by_game_id(session, game.id)
+    adventure_log = persister.get_adventure_log_by_game_id(
+        session, new_game.id
+    )
     assert adventure_log is not None
     assert len(adventure_log.discovered_locations) == 1
     assert adventure_log.discovered_locations[
@@ -70,7 +76,7 @@ def test_handles_variants(session: Session, direction: str) -> None:
     """
 
     # make game and map and add to db
-    game = helpers.make_game_in_map_location(
+    new_game = helpers.make_game_in_map_location(
         session=session,
         new_map=core.make_new_map(
             locations=[
@@ -91,10 +97,14 @@ def test_handles_variants(session: Session, direction: str) -> None:
     # move
     resp = move.handle_command(
         session=session,
-        game=game,
+        game=new_game,
         command=core.make_command(action="move", context=direction),
     )
-    assert resp.coordinates == types.Coordinates(
+    assert type(resp) is types.LocationOut
+    game = persister.get_game_by_id(session, new_game.id)
+    assert game is not None
+    assert game.location is not None
+    assert game.location.coordinates == types.Coordinates(
         x_coordinate=0, y_coordinate=1
     )
 
