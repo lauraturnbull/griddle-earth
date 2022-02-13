@@ -37,6 +37,7 @@ class Item(Base):
     adventure_log_discoverable_items = Column(
         Integer, ForeignKey("adventure_log.id")
     )
+    items_id = Column(Integer, ForeignKey("items.id"))
 
 
 class Items(Base):
@@ -46,8 +47,7 @@ class Items(Base):
 
     id = Column(Integer, primary_key=True)
     quantity = Column(Integer, nullable=False)
-    item_id = Column(Integer, ForeignKey("item.id"))
-    item = relationship("Item", uselist=False)
+    item = relationship("Item", backref="items", uselist=False)
 
     component_id = Column(Integer, ForeignKey("component.id"))
     inventory_id = Column(Integer, ForeignKey("inventory.id"))
@@ -59,7 +59,7 @@ class Component(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String, nullable=False)
     description = Column(String, nullable=False)
-    items = relationship("Items", backref="component")
+    items = relationship("Items", backref="component", cascade="all")
 
     location_id = Column(Integer, ForeignKey("location.id"))
 
@@ -75,7 +75,7 @@ class Location(Base):
     name = Column(String, nullable=False)
     description = Column(String, nullable=False)
     region = Column(String, nullable=False)
-    components = relationship("Component", backref="location")
+    components = relationship("Component", backref="location", cascade="all")
 
     game = relationship("Game", back_populates="location")
     game_id = Column(Integer, ForeignKey("game.id"))
@@ -92,7 +92,7 @@ class Location(Base):
 class Inventory(Base):
     __tablename__ = "inventory"
     id = Column(Integer, primary_key=True, index=True)
-    items = relationship("Items", backref="inventory")
+    items = relationship("Items", backref="inventory", cascade="all")
 
     game = relationship("Game", back_populates="inventory")
     game_id = Column(Integer, ForeignKey("game.id"))
@@ -110,15 +110,19 @@ class Game(Base):
     health_points = Column(Integer, nullable=False)
     created = Column(DateTime, nullable=False)
 
-    location = relationship("Location", back_populates="game", uselist=False)
-    inventory = relationship("Inventory", back_populates="game", uselist=False)
+    location = relationship(
+        "Location", back_populates="game", uselist=False, cascade="all"
+    )
+    inventory = relationship(
+        "Inventory", back_populates="game", uselist=False, cascade="all"
+    )
 
 
 class Map(Base):
     __tablename__ = "map"
 
     id = Column(Integer, primary_key=True, index=True)
-    locations = relationship("Location", backref="map")
+    locations = relationship("Location", backref="map", cascade="all")
     game_id = Column(Integer, ForeignKey("game.id"))
     game = relationship("Game", backref=backref("map", uselist=False))
 
@@ -129,16 +133,22 @@ class AdventureLog(Base):
     id = Column(Integer, primary_key=True, index=True)
 
     discovered_locations = relationship(
-        "Location", foreign_keys=Location.adventure_log_discovered_locations
+        "Location",
+        foreign_keys=Location.adventure_log_discovered_locations,
+        cascade="all",
     )
     discoverable_locations = relationship(
-        "Location", foreign_keys=Location.adventure_log_discoverable_locations
+        "Location",
+        foreign_keys=Location.adventure_log_discoverable_locations,
+        cascade="all",
     )
     discovered_items = relationship(
-        "Item", foreign_keys=Item.adventure_log_discovered_items
+        "Item", foreign_keys=Item.adventure_log_discovered_items, cascade="all"
     )
     discoverable_items = relationship(
-        "Item", foreign_keys=Item.adventure_log_discoverable_items
+        "Item",
+        foreign_keys=Item.adventure_log_discoverable_items,
+        cascade="all",
     )
 
     game_id = Column(Integer, ForeignKey("game.id"))
