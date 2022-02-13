@@ -106,7 +106,9 @@ def make_command(
     action: str = "move",
     context: str = "north",
 ) -> types.Command:
-    return types.Command(action=action, context=context.lower().split())
+    return types.Command(
+        action=types.Action(action), context=context.lower().split()
+    )
 
 
 def make_new_game(
@@ -238,4 +240,16 @@ def make_adventure_log(
         discovered_locations=discovered_locations,
         discoverable_items=discoverable_items,
         discovered_items=discovered_items,
+    )
+
+
+def make_location_out(
+    description: str = "A descriptive description",
+    name: str = "A sample location",
+    region: types.Region = types.Region.forest,
+) -> types.LocationOut:
+    return types.LocationOut(
+        description=description,
+        name=name,
+        region=region,
     )

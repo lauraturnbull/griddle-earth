@@ -1,23 +1,23 @@
-from typing import Any, List
+from typing import Any, Callable, Dict, List, Union
 
 from fastapi import HTTPException
+from sqlalchemy.orm import Session
 
-from engine.adapters.postgres import persister
 from engine.core import types
 
-from . import look, move, take, trap
+from . import look, move, start, take, trap
 
 null_words = ["the", "a", "an", "at"]
 
 
 class CommandParser:
     def __init__(self, session, command):
-        self.action = self.normalise_action(command)
-        self.context = self.normalise_context(command)
-        self.session = session
+        self.action: types.Action = self.normalise_action(command)
+        self.context: List[str] = self.normalise_context(command)
+        self.session: Session = session
 
     @staticmethod
-    def normalise_action(command: str) -> str:
+    def normalise_action(command: str) -> types.Action:
         # maybe need to pop out null_words before getting action
         # e.g. set a trap
         action = next(
@@ -36,36 +36,34 @@ class CommandParser:
 
     def normalise_context(self, command: str) -> List[str]:
         try:
-            context = command.lower().split(self.action, 1)[1].lstrip()
+            context = command.lower().split(self.action.value, 1)[1].lstrip()
             return [w for w in context.split() if w not in null_words]
         except IndexError:
             return []
 
     def handle_command(self, game: types.Game) -> Any:
         command = types.Command(action=self.action, context=self.context)
-
-        if self.action == "start":
-            location = persister.get_map_location_by_coordinates(
-                self.session,
-                game_id=game.id,
-                coordinates=types.Coordinates(x_coordinate=0, y_coordinate=0),
-            )
-            game.location = location
-        if self.action == "move":
-            return move.handle_command(
-                session=self.session, game=game, command=command
-            )
-        if self.action == "look":
-            # read only, no update
-            return look.handle_command(game=game, command=command)
-        if self.action == "take":
-            return take.handle_command(
-                session=self.session, game=game, command=command
-            )
-        if self.action == "set trap":
-            return trap.handle_command(
-                session=self.session, game=game, command=command
-            )
-        return persister.update_game(
-            self.session, game_id=game.id, new_game_state=game
-        )
+        # todo - super gross but will be cleaned up
+        command_map: Dict[
+            Any,
+            Callable[
+                [Session, types.Game, types.Command],
+                Union[
+                    types.LocationOut,
+                    types.Location,
+                    types.ComponentNameList,
+                    types.ComponentDescription,
+                    types.Items,
+                    types.NewItems,
+                    None,
+                ],
+            ],
+        ]
+        command_map = {
+            types.Action.start: start.handle_command,
+            types.Action.move: move.handle_command,
+            types.Action.look: look.handle_command,
+            types.Action.take: take.handle_command,
+            types.Action.set_trap: trap.handle_command,
+        }
+        return command_map[self.action](self.session, game, command)

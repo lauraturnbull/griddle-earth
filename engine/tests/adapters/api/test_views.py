@@ -76,3 +76,19 @@ def test_get_adventure_log_by_game_id(
             {"discoverable": 0, "discovered": 0, "region": "Home Plains"},
         ],
     }
+
+
+@freeze_time(frozen_time)
+@patch("engine.core.resources.base.map.make_base_map")
+def test_start_game(patched_map: Any, client: TestClient) -> None:
+    new_map = core.make_new_map()
+    patched_map.return_value = new_map
+
+    game = core.make_game(id=1)
+    resp = client.post("v1/game")
+    assert resp.json() == jsonable_encoder(game)
+
+    resp = client.post(
+        f"v1/game/{game.id}/command", params=dict(input="start")
+    )
+    assert resp.json() == jsonable_encoder(core.make_location_out())

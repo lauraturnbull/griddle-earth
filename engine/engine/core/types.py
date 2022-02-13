@@ -52,7 +52,7 @@ class Region(str, Enum):
 
 
 class Command(BaseModel):
-    action: str
+    action: Action
     context: List[str]
 
 
@@ -208,3 +208,9 @@ class AdventureLogOut(BaseModel):
 
     locations_discovered: List[DiscoveredLocationsByRegion]
     items_discovered: List[DiscoveredItemsByType]
+
+
+class LocationOut(BaseModel):
+    name: str
+    description: str
+    region: Region
