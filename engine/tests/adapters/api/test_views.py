@@ -52,7 +52,6 @@ def test_get_map_by_game_id(patched_map: Any, client: TestClient) -> None:
 def test_get_adventure_log_by_game_id(
     patched_map: Any, client: TestClient
 ) -> None:
-    # todo - this should have a different response type in future
     new_map = core.make_new_map()
     patched_map.return_value = new_map
 
@@ -61,21 +60,19 @@ def test_get_adventure_log_by_game_id(
     assert resp.json() == jsonable_encoder(game)
 
     resp = client.get(f"v1/game/{game.id}/adventure-log")
-    # ids aren't one due to map/game being inserted first.
-    adventure_log = core.make_adventure_log(
-        discoverable_items=[core.make_item(id=3)],
-        discoverable_locations=[
-            core.make_location(
-                id=2,
-                components=[
-                    core.make_component(
-                        id=2,
-                        items=[
-                            core.make_items(id=2, item=core.make_item(id=2))
-                        ],
-                    )
-                ],
-            )
+    assert resp.json() == {
+        "items_discovered": [
+            {"discoverable": 1, "discovered": 0, "item_type": "fruit"},
+            {"discoverable": 0, "discovered": 0, "item_type": "vegetable"},
+            {"discoverable": 0, "discovered": 0, "item_type": "protein"},
+            {"discoverable": 0, "discovered": 0, "item_type": "grain"},
+            {"discoverable": 0, "discovered": 0, "item_type": "herb"},
         ],
-    )
-    assert resp.json() == jsonable_encoder(adventure_log)
+        "locations_discovered": [
+            {"discoverable": 0, "discovered": 0, "region": "wetlands"},
+            {"discoverable": 0, "discovered": 0, "region": "mountains"},
+            {"discoverable": 1, "discovered": 0, "region": "forest"},
+            {"discoverable": 0, "discovered": 0, "region": "desert"},
+            {"discoverable": 0, "discovered": 0, "region": "Home Plains"},
+        ],
+    }

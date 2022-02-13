@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from engine.adapters.postgres import persister
-from engine.core import types
+from engine.core import responses, types
 from engine.core.commands import command_parser
 from engine.core.resources.base import adventure_log, map
 
@@ -69,12 +69,16 @@ def get_game_map(
 @v1.get("/game/{game_id}/adventure-log")
 def get_game_adventure_log(
     game_id: int, session: Session = Depends(dependencies.session)
-) -> Optional[types.AdventureLog]:
-    # todo - change this to adventure log out
+) -> Optional[types.AdventureLogOut]:
     adventure_log = persister.get_adventure_log_by_game_id(
         session, game_id=game_id
     )
-    return adventure_log
+    if adventure_log is None:
+        raise HTTPException(
+            status_code=422,
+            detail=f"no adventure log found for game {game_id}",
+        )
+    return responses.make_adventure_log_response(adventure_log=adventure_log)
 
 
 @v1.post("/game/{game_id}/command")
