@@ -214,3 +214,9 @@ class LocationOut(BaseModel):
     name: str
     description: str
     region: Region
+
+
+class ItemsOut(BaseModel):
+    quantity: int
+    name: str
+    health_points: int

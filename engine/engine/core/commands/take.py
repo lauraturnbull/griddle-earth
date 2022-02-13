@@ -1,5 +1,3 @@
-from typing import Union
-
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
@@ -10,7 +8,7 @@ from .helpers import move_item_to_inventory
 
 def handle_command(
     session: Session, game: types.Game, command: types.Command
-) -> Union[types.Items, types.NewItems]:
+) -> types.ItemsOut:
 
     """
     Input pattern is like:
@@ -42,7 +40,19 @@ def handle_command(
 
     item_name = " ".join(context[:delimiter_index])
     component_name = " ".join(context[delimiter_index + 1 :])
-    # todo need to check that the collection method is forage
+
+    items = next(
+        (i for i in game.inventory.items if i.item.name == item_name), None
+    )
+    if (
+        items is None
+        or items.item.collection_method  # noqa W503
+        is not types.ItemCollectionMethod.forage
+    ):
+        raise HTTPException(
+            status_code=422,
+            detail=f"Cannot forage {item_name} from {component_name}",
+        )
 
     return move_item_to_inventory(
         session,

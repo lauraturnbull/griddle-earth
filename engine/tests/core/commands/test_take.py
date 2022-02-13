@@ -44,8 +44,9 @@ def test_take_item(session: Session) -> None:
         # note - "the"/"a" is stripped before this function call
         command=core.make_command(action="take", context="apples from trees"),
     )
+    assert type(resp) == types.ItemsOut
     assert resp.quantity == 1
-    assert resp.item.name == "apple"
+    assert resp.name == "apple"
 
     # check inventory has been updated
     game = persister.get_game_by_id(session, game_id=new_game.id)

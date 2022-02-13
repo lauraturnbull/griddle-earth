@@ -50,7 +50,7 @@ def move_item_to_inventory(
     component_name: str,
     item_name: str,
     take_all: bool = False,
-) -> Union[types.Items, types.NewItems]:
+) -> types.ItemsOut:
 
     if game.location is None:
         raise HTTPException(
@@ -73,7 +73,6 @@ def move_item_to_inventory(
     map_component = get_component(
         components=map_location.components, component_name=component_name
     )
-    # todo - need to assert we can "take" the item i.e not a rabbit etc
     map_items = get_items(items_list=map_component.items, item_name=item_name)
 
     inventory_items: Optional[Union[types.Items, types.NewItems]]
@@ -113,5 +112,8 @@ def move_item_to_inventory(
     persister.update_adventure_log_discovered_items(
         session, game_id=game.id, item=inventory_items.item
     )
-    # todo - update to return type
-    return inventory_items
+    return types.ItemsOut(
+        quantity=inventory_items.quantity,
+        name=inventory_items.item.name,
+        health_points=inventory_items.item.health_points,
+    )

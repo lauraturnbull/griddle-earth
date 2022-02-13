@@ -1,4 +1,5 @@
 import random
+from typing import Optional
 
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
@@ -15,7 +16,7 @@ def try_capture_item(weight):
 
 def handle_command(
     session: Session, game: types.Game, command: types.Command
-) -> None:  # todo - add return type
+) -> Optional[types.ItemsOut]:
 
     """
     input looks like:
@@ -63,14 +64,20 @@ def handle_command(
             detail=f"Nothing available to hunt in {component_name}",
         )
 
-    # always delete bait from inventory - todo raise on no bait
+    # always delete bait from inventory
     bait_items = next(
         (i for i in game.inventory.items if i.item.name == bait_name), None
     )
     if bait_items is None:
         raise HTTPException(
             status_code=422,
-            detail=(f"No {bait_name} found in inventory"),
+            detail=f"No {bait_name} found in inventory",
+        )
+    if bait_items.item.collection_method is types.ItemCollectionMethod.forage:
+        # todo - return a hint here instead
+        raise HTTPException(
+            status_code=422,
+            detail=f"Maybe you shouldn't set a trap for {hunted_items}",
         )
     bait_items.quantity -= 1
     persister.update_game(session, game.id, game)
@@ -78,12 +85,12 @@ def handle_command(
     item_captured = try_capture_item(50 + hunted_items.item.health_points / 10)
 
     if item_captured:
-        move_item_to_inventory(
+        return move_item_to_inventory(
             session,
             game=game,
             item_name=hunted_items.item.name,
             component_name=component_name,
         )
 
-    # return failed trap type
+    # todo - new failed trap type
     return None
