@@ -2,10 +2,10 @@ from engine.core import types
 from engine.core.resources import items
 
 
-def make_base_map() -> types.Map:
-    return types.Map(
+def make_base_map() -> types.NewMap:
+    return types.NewMap(
         locations=[
-            types.Location(
+            types.NewLocation(
                 coordinates=types.Coordinates(
                     x_coordinate=0,
                     y_coordinate=0,
@@ -17,7 +17,7 @@ def make_base_map() -> types.Map:
                 region=types.Region.home_plains,
                 components=[],
             ),
-            types.Location(
+            types.NewLocation(
                 coordinates=types.Coordinates(
                     x_coordinate=1,
                     y_coordinate=0,
@@ -27,16 +27,16 @@ def make_base_map() -> types.Map:
                 "orchards in the Home Plains.",
                 region=types.Region.home_plains,
                 components=[
-                    types.Component(
+                    types.NewComponent(
                         name="Trees",
                         description="The trees are bursting with apples. There"
                         " are also a few birds nests.",
                         items=[
-                            types.Items(
+                            types.NewItems(
                                 item=items.apple,
                                 quantity=3,
                             ),
-                            types.Items(item=items.egg, quantity=1),
+                            types.NewItems(item=items.egg, quantity=1),
                         ],
                     )
                 ],

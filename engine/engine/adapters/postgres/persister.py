@@ -24,7 +24,7 @@ def item_app_to_db(item: types.Item) -> model.Item:
 
 def items_app_to_db(items: types.Items) -> model.Items:
     return model.Items(
-        item=item_app_to_db(items.item), quantity=items.quantity
+        item=item_app_to_db(items.item), **items.dict(exclude={"item"})
     )
 
 
@@ -35,7 +35,9 @@ def component_app_to_db(component: types.Component) -> model.Component:
     )
 
 
-def location_app_to_db(location: types.Location) -> model.Location:
+def location_app_to_db(
+    location: [types.Location, types.NewLocation]
+) -> model.Location:
     return model.Location(
         x_coordinate=location.coordinates.x_coordinate,
         y_coordinate=location.coordinates.y_coordinate,
@@ -45,10 +47,13 @@ def location_app_to_db(location: types.Location) -> model.Location:
 
 
 def inventory_app_to_db(inventory: types.Inventory) -> model.Inventory:
-    return model.Inventory(items=[items_app_to_db(i) for i in inventory.items])
+    return model.Inventory(
+        items=[items_app_to_db(i) for i in inventory.items],
+        **inventory.dict(exclude={"items"}),
+    )
 
 
-def game_app_to_db(game: Union[types.Game, types.NewGame]) -> model.Game:
+def game_app_to_db(game: types.Game) -> model.Game:
     return model.Game(
         location=location_app_to_db(game.location) if game.location else None,
         inventory=inventory_app_to_db(game.inventory),
@@ -56,12 +61,22 @@ def game_app_to_db(game: Union[types.Game, types.NewGame]) -> model.Game:
     )
 
 
-def map_app_to_db(map: types.Map) -> model.Map:
-    return model.Map(locations=[location_app_to_db(i) for i in map.locations])
+def new_game_app_to_db(game: types.NewGame) -> model.Game:
+    return model.Game(
+        inventory=inventory_app_to_db(game.inventory),
+        **game.dict(exclude={"location", "inventory"}),
+    )
+
+
+def map_app_to_db(map: Union[types.Map, types.NewMap]) -> model.Map:
+    return model.Map(
+        locations=[location_app_to_db(i) for i in map.locations],
+        **map.dict(exclude={"locations"}),
+    )
 
 
 def adventure_log_app_to_db(
-    adventure_log: types.AdventureLog,
+    adventure_log: Union[types.AdventureLog, types.NewAdventureLog]
 ) -> model.AdventureLog:
     return model.AdventureLog(
         discovered_locations=[
@@ -84,6 +99,7 @@ def adventure_log_app_to_db(
 
 def item_db_to_app(item: model.Item) -> types.Item:
     return types.Item(
+        id=item.id,
         name=item.name,
         item_type=types.ItemType(item.item_type),
         health_points=item.health_points,
@@ -93,12 +109,13 @@ def item_db_to_app(item: model.Item) -> types.Item:
 
 def items_db_to_app(items: model.Items) -> types.Items:
     return types.Items(
-        quantity=items.quantity, item=item_db_to_app(items.item)
+        id=items.id, quantity=items.quantity, item=item_db_to_app(items.item)
     )
 
 
 def component_db_to_app(component: model.Component) -> types.Component:
     return types.Component(
+        id=component.id,
         name=component.name,
         description=component.description,
         items=[items_db_to_app(i) for i in component.items],
@@ -107,6 +124,7 @@ def component_db_to_app(component: model.Component) -> types.Component:
 
 def location_db_to_app(location: model.Location) -> types.Location:
     return types.Location(
+        id=location.id,
         coordinates=types.Coordinates(
             x_coordinate=location.x_coordinate,
             y_coordinate=location.y_coordinate,
@@ -119,7 +137,9 @@ def location_db_to_app(location: model.Location) -> types.Location:
 
 
 def inventory_db_to_app(inventory: model.Inventory) -> types.Inventory:
-    return types.Inventory(items=[items_db_to_app(i) for i in inventory.items])
+    return types.Inventory(
+        id=inventory.id, items=[items_db_to_app(i) for i in inventory.items]
+    )
 
 
 def game_db_to_app(game: model.Game) -> types.Game:
@@ -133,11 +153,13 @@ def game_db_to_app(game: model.Game) -> types.Game:
 
 
 def map_db_to_app(map: model.Map) -> types.Map:
-    return types.Map(locations=[location_db_to_app(i) for i in map.locations])
+    return types.Map(
+        id=map.id, locations=[location_db_to_app(i) for i in map.locations]
+    )
 
 
 def adventure_log_db_to_app(
-    adventure_log: model.AdventureLog,
+    adventure_log: Union[model.AdventureLog],
 ) -> types.AdventureLog:
     return types.AdventureLog(
         discovered_locations=[
@@ -158,18 +180,19 @@ def adventure_log_db_to_app(
 def create_new_game(
     session: Session,
     game: types.NewGame,
-    map: types.Map,
-    adventure_log: types.AdventureLog,
+    map: types.NewMap,
+    adventure_log: types.NewAdventureLog,
 ) -> types.Game:
     # create the game
-    game_db = game_app_to_db(game)
+    game_db = new_game_app_to_db(game)
     session.add(game_db)
     session.commit()
+    session.flush()
 
     # store the map used for this game
     map_db = map_app_to_db(map)
     map_db.game_id = game_db.id
-    session.add(map_db)
+    session.merge(map_db)
     session.commit()
 
     # store discoverable locations and items based on map
@@ -192,13 +215,13 @@ def get_game_by_id(session: Session, game_id: int) -> Optional[types.Game]:
 
 def update_game(
     session: Session, game_id: int, new_game_state: types.Game
-) -> types.Game:
+) -> None:
     new_game_db = game_app_to_db(new_game_state)
     new_game_db.id = game_id
     session.merge(new_game_db)
     session.flush()
     session.commit()
-    return game_db_to_app(new_game_db)
+    return
 
 
 def get_map_by_game_id(

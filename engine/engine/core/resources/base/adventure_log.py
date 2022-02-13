@@ -1,7 +1,7 @@
 from engine.core import types
 
 
-def make_base_adventure_log(map: types.Map) -> types.AdventureLog:
+def make_base_adventure_log(map: types.NewMap) -> types.NewAdventureLog:
     discoverable_locations = map.locations
     discoverable_items = list()
     for loc in discoverable_locations:
@@ -10,7 +10,7 @@ def make_base_adventure_log(map: types.Map) -> types.AdventureLog:
                 if i.item not in discoverable_items:
                     discoverable_items.append(i.item)
 
-    return types.AdventureLog(
+    return types.NewAdventureLog(
         discoverable_locations=discoverable_locations,
         discoverable_items=discoverable_items,
     )

@@ -5,6 +5,8 @@ from typing import List, Optional
 from aenum import MultiValueEnum
 from pydantic import BaseModel
 
+# enums
+
 
 class Action(MultiValueEnum):
     take = "take", "grab", "t"
@@ -58,6 +60,7 @@ class Command(BaseModel):
 
 
 class Item(BaseModel):
+    id: int
     name: str
     item_type: ItemType
     health_points: int
@@ -65,16 +68,9 @@ class Item(BaseModel):
 
 
 class Items(BaseModel):
+    id: int
     item: Item
     quantity: int
-
-
-class Region(str, Enum):
-    wetlands = ("wetlands",)
-    mountains = ("mountains",)
-    forest = ("forest",)
-    desert = ("desert",)
-    home_plains = "Home Plains"
 
 
 class Coordinates(BaseModel):
@@ -85,12 +81,14 @@ class Coordinates(BaseModel):
 class Component(BaseModel):
     """A small part of a location that can be interacted with"""
 
+    id: int
     name: str  # animal tracks
     description: str  # frequently used, perfect for setting traps
     items: List[Items] = []
 
 
 class Location(BaseModel):
+    id: int
     coordinates: Coordinates
     name: str
     description: str
@@ -99,14 +97,8 @@ class Location(BaseModel):
 
 
 class Inventory(BaseModel):
+    id: int
     items: List[Items] = []
-
-
-class NewGame(BaseModel):
-    location: Optional[Location] = None
-    health_points: int
-    created: datetime
-    inventory: Inventory
 
 
 class Game(BaseModel):
@@ -118,6 +110,7 @@ class Game(BaseModel):
 
 
 class Map(BaseModel):
+    id: int
     locations: List[Location] = []
 
 
@@ -130,6 +123,71 @@ class AdventureLog(BaseModel):
     discoverable_items: List[Item]
     # inventory ?
     # discovered_meals ?
+
+
+# "new" types, without an id. For typing before adding to db.
+
+
+class NewItem(BaseModel):
+    name: str
+    item_type: ItemType
+    health_points: int
+    collection_method: ItemCollectionMethod
+
+
+class NewItems(BaseModel):
+    item: NewItem
+    quantity: int
+
+
+class NewComponent(BaseModel):
+    """A small part of a location that can be interacted with"""
+
+    name: str  # animal tracks
+    description: str  # frequently used, perfect for setting traps
+    items: List[NewItems] = []
+
+
+class NewLocation(BaseModel):
+    coordinates: Coordinates
+    name: str
+    description: str
+    region: Region
+    components: List[NewComponent] = []
+
+
+class NewMap(BaseModel):
+    locations: List[NewLocation] = []
+
+
+class NewAdventureLog(BaseModel):
+    """Raw locations/items discovered - for db"""
+
+    discovered_locations: List[NewLocation] = []
+    discoverable_locations: List[NewLocation]
+    discovered_items: List[NewItem] = []
+    discoverable_items: List[NewItem]
+
+
+class NewInventory(BaseModel):
+    items: List[Items] = []
+
+
+class NewGame(BaseModel):
+    health_points: int
+    created: datetime
+    inventory: NewInventory
+
+
+# command return types
+
+
+class ComponentNameList(BaseModel):
+    names: List[str]
+
+
+class ComponentDescription(BaseModel):
+    description: str
 
 
 class DiscoveredLocationsByRegion(BaseModel):
@@ -149,14 +207,3 @@ class AdventureLogOut(BaseModel):
 
     locations_discovered: List[DiscoveredLocationsByRegion]
     items_discovered: List[DiscoveredItemsByType]
-
-
-# command return types
-
-
-class ComponentNameList(BaseModel):
-    names: List[str]
-
-
-class ComponentDescription(BaseModel):
-    description: str

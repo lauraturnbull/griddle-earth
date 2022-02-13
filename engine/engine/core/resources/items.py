@@ -1,7 +1,7 @@
-from engine.core.types import Item, ItemCollectionMethod, ItemType
+from engine.core.types import ItemCollectionMethod, ItemType, NewItem
 
 # fruit
-apple = Item(
+apple = NewItem(
     name="apple",
     item_type=ItemType.fruit,
     health_points=30,
@@ -9,20 +9,20 @@ apple = Item(
 )
 
 # vegetables
-potato = Item(
+potato = NewItem(
     name="potato",
     item_type=ItemType.vegetable,
     health_points=50,
     collection_method=ItemCollectionMethod.forage,
 )
-carrot = Item(
+carrot = NewItem(
     name="carrot",
     item_type=ItemType.vegetable,
     health_points=50,
     collection_method=ItemCollectionMethod.forage,
 )
 
-spotted_mushroom = Item(
+spotted_mushroom = NewItem(
     name="spotted mushroom",
     item_type=ItemType.vegetable,
     health_points=-30,
@@ -30,7 +30,7 @@ spotted_mushroom = Item(
 )
 
 # proteins
-egg = Item(
+egg = NewItem(
     name="egg",
     item_type=ItemType.protein,
     health_points=40,
@@ -41,7 +41,7 @@ egg = Item(
 
 # herbs
 
-chives = Item(
+chives = NewItem(
     name="chives",
     item_type=ItemType.herb,
     health_points=5,

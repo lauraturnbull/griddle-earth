@@ -29,7 +29,7 @@ def create_new_game(
 ) -> types.Game:
     base_game = types.NewGame(
         health_points=1000,
-        inventory=types.Inventory(),
+        inventory=types.NewInventory(),
         created=get_now(),
     )
     base_map = map.make_base_map()

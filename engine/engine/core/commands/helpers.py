@@ -86,7 +86,7 @@ def move_item_to_inventory(
     )
 
     if inventory_items is None:
-        inventory_items = types.Items(quantity=0, item=map_items.item)
+        inventory_items = types.NewItems(quantity=0, item=map_items.item)
         game.inventory.items.append(inventory_items)
 
     if take_all:

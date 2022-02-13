@@ -33,8 +33,8 @@ def handle_command(
         raise HTTPException(
             status_code=422,
             detail=(
-                f"You must provide the location when taking items, i.e: "
-                f"take {' '.join(command.context)} from ___"
+                "You must provide the location when taking items, i.e: "
+                "take [[all] item] from [place]"
             ),
         )
 
