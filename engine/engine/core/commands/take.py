@@ -41,23 +41,11 @@ def handle_command(
     item_name = " ".join(context[:delimiter_index])
     component_name = " ".join(context[delimiter_index + 1 :])
 
-    items = next(
-        (i for i in game.inventory.items if i.item.name == item_name), None
-    )
-    if (
-        items is None
-        or items.item.collection_method  # noqa W503
-        is not types.ItemCollectionMethod.forage
-    ):
-        raise HTTPException(
-            status_code=422,
-            detail=f"Cannot forage {item_name} from {component_name}",
-        )
-
     return move_item_to_inventory(
         session,
         game=game,
         item_name=item_name,
         component_name=component_name,
         take_all=take_all,
+        collection_method=types.ItemCollectionMethod.forage,
     )

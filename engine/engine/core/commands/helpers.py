@@ -49,6 +49,7 @@ def move_item_to_inventory(
     game: types.Game,
     component_name: str,
     item_name: str,
+    collection_method: types.ItemCollectionMethod,
     take_all: bool = False,
 ) -> types.ItemsOut:
 
@@ -74,6 +75,11 @@ def move_item_to_inventory(
         components=map_location.components, component_name=component_name
     )
     map_items = get_items(items_list=map_component.items, item_name=item_name)
+    if map_items.item.collection_method is not collection_method:
+        raise HTTPException(
+            status_code=422,
+            detail=f"Unable to {collection_method.value} component name",
+        )
 
     inventory_items: Optional[Union[types.Items, types.NewItems]]
     inventory_items = next(

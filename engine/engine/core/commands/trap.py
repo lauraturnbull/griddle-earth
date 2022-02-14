@@ -73,12 +73,6 @@ def handle_command(
             status_code=422,
             detail=f"No {bait_name} found in inventory",
         )
-    if bait_items.item.collection_method is types.ItemCollectionMethod.forage:
-        # todo - return a hint here instead
-        raise HTTPException(
-            status_code=422,
-            detail=f"Maybe you shouldn't set a trap for {hunted_items}",
-        )
     bait_items.quantity -= 1
     persister.update_game(session, game.id, game)
 
@@ -90,6 +84,7 @@ def handle_command(
             game=game,
             item_name=hunted_items.item.name,
             component_name=component_name,
+            collection_method=types.ItemCollectionMethod.hunt,
         )
 
     # todo - new failed trap type
