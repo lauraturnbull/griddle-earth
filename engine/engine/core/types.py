@@ -14,6 +14,7 @@ class Action(MultiValueEnum):
     move = "move", "go", "m"
     start = "start"
     set_trap = "set trap"
+    cook = "cook"
 
     @classmethod
     def values(cls):
@@ -33,11 +34,13 @@ class ItemType(str, Enum):
     protein = "protein"
     grain = "grain"
     herb = "herb"
+    meal = "meal"
 
 
 class ItemCollectionMethod(str, Enum):
     hunt = "hunt"
     forage = "forage"
+    cook = "cook"
 
 
 class Region(str, Enum):
@@ -220,3 +223,18 @@ class ItemsOut(BaseModel):
     quantity: int
     name: str
     health_points: int
+
+
+# purely internal
+
+
+class Recipe(BaseModel):
+    name: str
+    description: str
+    required_items: List[NewItem] = []
+    required_types: List[ItemType] = []
+    boost: int
+
+
+class RecipeBook(BaseModel):
+    recipes: List[Recipe] = []

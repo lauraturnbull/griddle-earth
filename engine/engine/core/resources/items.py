@@ -36,8 +36,26 @@ egg = NewItem(
     health_points=40,
     collection_method=ItemCollectionMethod.forage,
 )
+rabbit = NewItem(
+    name="rabbit",
+    item_type=ItemType.protein,
+    health_points=150,
+    collection_method=ItemCollectionMethod.hunt,
+)
+pork = NewItem(
+    name="pork",
+    item_type=ItemType.protein,
+    health_points=150,
+    collection_method=ItemCollectionMethod.hunt,
+)
 
 # grains
+wheat = NewItem(
+    name="wheat",
+    item_type=ItemType.grain,
+    health_points=50,
+    collection_method=ItemCollectionMethod.forage,
+)
 
 # herbs
 
