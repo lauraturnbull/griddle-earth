@@ -4,6 +4,7 @@ from engine.core import types
 def make_adventure_log_response(
     adventure_log: types.AdventureLog,
 ) -> types.AdventureLogOut:
+    # todo fix this for meals which aren't stored
     discovered_locations_by_region = [
         types.DiscoveredLocationsByRegion(
             region=r,

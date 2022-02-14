@@ -5,9 +5,9 @@ from sqlalchemy.orm import Session
 
 from engine.core import types
 
-from . import look, move, start, take, trap
+from . import cook, look, move, start, take, trap
 
-null_words = ["the", "a", "an", "at"]
+null_words = ["the", "a", "an", "at", "with"]
 
 
 class CommandParser:
@@ -37,7 +37,11 @@ class CommandParser:
     def normalise_context(self, command: str) -> List[str]:
         try:
             context = command.lower().split(self.action.value, 1)[1].lstrip()
-            return [w for w in context.split() if w not in null_words]
+            return [
+                w
+                for w in context.replace(",", "").split()
+                if w not in null_words
+            ]
         except IndexError:
             return []
 
@@ -63,5 +67,6 @@ class CommandParser:
             types.Action.look: look.handle_command,
             types.Action.take: take.handle_command,
             types.Action.set_trap: trap.handle_command,
+            types.Action.cook: cook.handle_command,
         }
         return command_map[self.action](self.session, game, command)

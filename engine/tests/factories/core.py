@@ -107,7 +107,8 @@ def make_command(
     context: str = "north",
 ) -> types.Command:
     return types.Command(
-        action=types.Action(action), context=context.lower().split()
+        action=types.Action(action),
+        context=context.lower().replace(",", "").split(),
     )
 
 

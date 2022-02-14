@@ -60,6 +60,7 @@ def test_get_adventure_log_by_game_id(
     assert resp.json() == jsonable_encoder(game)
 
     resp = client.get(f"v1/game/{game.id}/adventure-log")
+    # todo properly patch this
     assert resp.json() == {
         "items_discovered": [
             {"discoverable": 1, "discovered": 0, "item_type": "fruit"},
@@ -67,6 +68,7 @@ def test_get_adventure_log_by_game_id(
             {"discoverable": 0, "discovered": 0, "item_type": "protein"},
             {"discoverable": 0, "discovered": 0, "item_type": "grain"},
             {"discoverable": 0, "discovered": 0, "item_type": "herb"},
+            {"discoverable": 0, "discovered": 0, "item_type": "meal"},
         ],
         "locations_discovered": [
             {"discoverable": 0, "discovered": 0, "region": "wetlands"},
