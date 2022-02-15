@@ -45,10 +45,10 @@ class ItemCollectionMethod(str, Enum):
 
 
 class Region(str, Enum):
-    wetlands = ("wetlands",)
-    mountains = ("mountains",)
-    forest = ("forest",)
-    desert = ("desert",)
+    wetlands = "wetlands"
+    mountains = "mountains"
+    forest = "forest"
+    desert = "desert"
     home_plains = "Home Plains"
 
 

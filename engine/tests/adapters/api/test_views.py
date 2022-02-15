@@ -93,4 +93,4 @@ def test_start_game(patched_map: Any, client: TestClient) -> None:
     resp = client.post(
         f"v1/game/{game.id}/command", params=dict(input="start")
     )
-    assert resp.json() == jsonable_encoder(core.make_location_out())
+    assert resp.json() == jsonable_encoder(core.make_move_response())

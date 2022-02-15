@@ -254,3 +254,13 @@ def make_location_out(
         name=name,
         region=region,
     )
+
+
+def make_move_response(
+    health_points: int = 1000, location_out: Optional[types.LocationOut] = None
+) -> types.MoveResponse:
+    if location_out is None:
+        location_out = make_location_out()
+    return types.MoveResponse(
+        health_points=health_points, location=location_out
+    )

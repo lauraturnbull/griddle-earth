@@ -2,10 +2,7 @@ from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
 from engine.adapters.postgres import persister
-from engine.core import types
-
-# n,e,s,w?
-DIRECTIONS = ["north", "east", "south", "west"]
+from engine.core import constants, types
 
 
 def handle_command(
@@ -37,9 +34,9 @@ def handle_command(
             detail=("You cannot go that way"),
         )
 
-    # update the game state # todo make this a constant somewhere
+    # update the game state
     game.location = new_location
-    game.health_points -= 50
+    game.health_points -= constants.MOVE_LOCATION_HP
 
     persister.update_game(session, game_id=game.id, new_game_state=game)
 
