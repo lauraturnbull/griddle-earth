@@ -250,3 +250,7 @@ class Recipe(BaseModel):
 
 class RecipeBook(BaseModel):
     recipes: List[Recipe] = []
+
+
+class Error(BaseModel):
+    message: str

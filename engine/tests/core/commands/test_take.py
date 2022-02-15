@@ -95,3 +95,37 @@ def test_take_item(session: Session) -> None:
     assert adventure_log is not None
     assert len(adventure_log.discovered_items) == 1
     assert adventure_log.discovered_items[0].name == "apple"
+
+
+@freeze_time(frozen_time)
+def test_take_item_full_inventory(session: Session) -> None:
+    # make game and map and add to db
+    new_game = helpers.make_game_in_map_location(
+        session=session,
+    )
+    # add some items to the inventory
+    new_game.inventory.items = [
+        core.make_new_items(
+            item=core.make_new_item(  # type: ignore
+                name="apple", health_points=30
+            ),
+            quantity=9,
+        ),
+        core.make_new_items(
+            item=core.make_new_item(  # type: ignore
+                name="wheat", health_points=20, item_type=types.ItemType.grain
+            ),
+            quantity=1,
+        ),
+    ]
+    persister.update_game(session, new_game.id, new_game)
+    game = persister.get_game_by_id(session, new_game.id)
+    assert game is not None
+    assert len(game.inventory.items) == 2
+
+    resp = take.handle_command(
+        session,
+        game,
+        command=core.make_command(action="take", context="apples from trees"),
+    )
+    assert type(resp) == types.Error

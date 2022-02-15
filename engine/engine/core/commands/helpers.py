@@ -4,7 +4,7 @@ from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
 from engine.adapters.postgres import persister
-from engine.core import types
+from engine.core import constants, types
 
 
 def get_noun_variants(noun: str) -> List[str]:
@@ -51,7 +51,7 @@ def move_item_to_inventory(
     item_name: str,
     collection_method: types.ItemCollectionMethod,
     take_all: bool = False,
-) -> types.ItemsOut:
+) -> Union[types.ItemsOut, types.Error]:
 
     if game.location is None:
         raise HTTPException(
@@ -79,6 +79,16 @@ def move_item_to_inventory(
         raise HTTPException(
             status_code=422,
             detail=f"Unable to {collection_method.value} component name",
+        )
+
+    if (
+        sum(i.quantity for i in game.inventory.items) + map_items.quantity
+        > constants.MAX_INVENTORY_SIZE  # noqa W503
+    ):
+        return types.Error(
+            message=f"Cannot exceed maximum inventory size of "
+            f"{constants.MAX_INVENTORY_SIZE}. Cook, consume, or drop "
+            f"items to reduce the size of your inventory."
         )
 
     inventory_items: Optional[Union[types.Items, types.NewItems]]

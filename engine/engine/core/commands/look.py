@@ -1,6 +1,7 @@
 from typing import Union
 
 from fastapi import HTTPException
+from sqlalchemy.orm import Session
 
 from engine.core import types
 
@@ -8,7 +9,7 @@ from .helpers import get_component
 
 
 def handle_command(
-    game: types.Game, command: types.Command
+    session: Session, game: types.Game, command: types.Command
 ) -> Union[types.LookAroundResponse, types.LookAtResponse]:
     if game.location is None:
         raise HTTPException(

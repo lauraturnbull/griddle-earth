@@ -1,11 +1,11 @@
 import random
-from typing import Optional
+from typing import Optional, Union
 
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
 from engine.adapters.postgres import persister
-from engine.core import types
+from engine.core import constants, types
 
 from .helpers import get_component, move_item_to_inventory
 
@@ -16,7 +16,7 @@ def try_capture_item(weight):
 
 def handle_command(
     session: Session, game: types.Game, command: types.Command
-) -> Optional[types.ItemsOut]:
+) -> Optional[Union[types.ItemsOut, types.Error]]:
 
     """
     input looks like:
@@ -39,6 +39,16 @@ def handle_command(
                 "You must provide the location and bait item when setting a"
                 " trap: `set trap in [location] with [item]`"
             ),
+        )
+
+    if (
+        sum(i.quantity for i in game.inventory.items)
+        == constants.MAX_INVENTORY_SIZE  # noqa W503
+    ):
+        return types.Error(
+            message=f"Cannot exceed maximum inventory size of "
+            f"{constants.MAX_INVENTORY_SIZE}. Cook, consume, or drop "
+            f"items to reduce the size of your inventory."
         )
 
     component_name = " ".join(

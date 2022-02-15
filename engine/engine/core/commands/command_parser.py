@@ -58,6 +58,7 @@ class CommandParser:
                     types.LookAtResponse,
                     types.ItemsOut,
                     types.EatResponse,
+                    types.Error,
                     None,
                 ],
             ],
