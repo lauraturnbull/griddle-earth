@@ -53,9 +53,9 @@ class CommandParser:
             Callable[
                 [Session, types.Game, types.Command],
                 Union[
-                    types.LocationOut,
-                    types.ComponentNameList,
-                    types.ComponentDescription,
+                    types.MoveResponse,
+                    types.LookAroundResponse,
+                    types.LookAtResponse,
                     types.ItemsOut,
                     types.EatResponse,
                     None,

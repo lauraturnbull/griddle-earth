@@ -9,17 +9,30 @@ from .helpers import get_component
 
 def handle_command(
     game: types.Game, command: types.Command
-) -> Union[types.ComponentNameList, types.ComponentDescription]:
+) -> Union[types.LookAroundResponse, types.LookAtResponse]:
     if game.location is None:
         raise HTTPException(
             status_code=422,
             detail=("No location - game not started"),
         )
     if "around" in command.context:
-        return types.ComponentNameList(
+        return types.LookAroundResponse(
             names=[c.name for c in game.location.components]
         )
 
     component_name = " ".join(command.context).lower()
     component = get_component(game.location.components, component_name)
-    return types.ComponentDescription(description=component.description)
+    return types.LookAtResponse(
+        description=component.description,
+        # List forageable items and cooked items that were dropped.
+        # Components with hunted items will only have the component description
+        visible_items=[
+            i.item.name
+            for i in component.items
+            if i.item.collection_method
+            in (
+                types.ItemCollectionMethod.forage,
+                types.ItemCollectionMethod.cook,
+            )
+        ],
+    )

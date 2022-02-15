@@ -187,14 +187,6 @@ class NewGame(BaseModel):
 # command return types
 
 
-class ComponentNameList(BaseModel):
-    names: List[str]
-
-
-class ComponentDescription(BaseModel):
-    description: str
-
-
 class DiscoveredLocationsByRegion(BaseModel):
     region: Region
     discovered: int = 0
@@ -226,9 +218,23 @@ class ItemsOut(BaseModel):
     health_points: int
 
 
+class MoveResponse(BaseModel):
+    health_points: int
+    location: LocationOut
+
+
 class EatResponse(BaseModel):
     health_points: int
     consumed_item: ItemsOut
+
+
+class LookAroundResponse(BaseModel):
+    names: List[str]
+
+
+class LookAtResponse(BaseModel):
+    description: str
+    visible_items: List[ItemsOut]
 
 
 # purely internal

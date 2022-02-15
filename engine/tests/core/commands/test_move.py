@@ -45,7 +45,8 @@ def test_move(session: Session) -> None:
         game=new_game,
         command=core.make_command(action="move", context="north east"),
     )
-    assert type(resp) is types.LocationOut
+    assert type(resp) is types.MoveResponse
+    assert resp.health_points == 950
     game = persister.get_game_by_id(session, new_game.id)
     assert game is not None
     assert game.location is not None
@@ -100,7 +101,8 @@ def test_handles_variants(session: Session, direction: str) -> None:
         game=new_game,
         command=core.make_command(action="move", context=direction),
     )
-    assert type(resp) is types.LocationOut
+    assert type(resp) is types.MoveResponse
+    assert resp.health_points == 950
     game = persister.get_game_by_id(session, new_game.id)
     assert game is not None
     assert game.location is not None
