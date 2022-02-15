@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 
 from engine.core import types
 
-from . import cook, look, move, start, take, trap
+from . import cook, eat, look, move, start, take, trap
 
 null_words = ["the", "a", "an", "at", "with"]
 
@@ -57,6 +57,7 @@ class CommandParser:
                     types.ComponentNameList,
                     types.ComponentDescription,
                     types.ItemsOut,
+                    types.EatResponse,
                     None,
                 ],
             ],
@@ -68,5 +69,6 @@ class CommandParser:
             types.Action.take: take.handle_command,
             types.Action.set_trap: trap.handle_command,
             types.Action.cook: cook.handle_command,
+            types.Action.eat: eat.handle_command,
         }
         return command_map[self.action](self.session, game, command)

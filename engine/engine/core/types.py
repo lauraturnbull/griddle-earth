@@ -14,7 +14,8 @@ class Action(MultiValueEnum):
     move = "move", "go", "m"
     start = "start"
     set_trap = "set trap"
-    cook = "cook"
+    cook = "cook", "c"
+    eat = "eat", "e"
 
     @classmethod
     def values(cls):
@@ -223,6 +224,11 @@ class ItemsOut(BaseModel):
     quantity: int
     name: str
     health_points: int
+
+
+class EatResponse(BaseModel):
+    health_points: int
+    consumed_item: ItemsOut
 
 
 # purely internal
