@@ -27,7 +27,11 @@ def handle_command(
         # List forageable items and cooked items that were dropped.
         # Components with hunted items will only have the component description
         visible_items=[
-            i.item.name
+            types.ItemsOut(
+                quantity=i.quantity,
+                name=i.item.name,
+                health_points=i.item.health_points,
+            )
             for i in component.items
             if i.item.collection_method
             in (
