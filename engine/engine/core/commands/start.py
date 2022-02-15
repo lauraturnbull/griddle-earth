@@ -7,7 +7,7 @@ from engine.core import types
 
 def handle_command(
     session: Session, game: types.Game, command: types.Command
-) -> types.LocationOut:
+) -> types.MoveResponse:
     """
     Begin the game in location (0,0).
     In future the location could be selected
@@ -24,4 +24,7 @@ def handle_command(
         )
     game.location = location
     persister.update_game(session, game_id=game.id, new_game_state=game)
-    return types.LocationOut(**location.dict())
+    return types.MoveResponse(
+        health_points=game.health_points,
+        location=types.LocationOut(**location.dict()),
+    )
