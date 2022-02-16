@@ -22,6 +22,8 @@ def handle_command(
             detail=f"Could not find any {item_name} in your inventory",
         )
 
+    # todo - cannot exceed max hp
+
     # update hp and remove item from inventory
     game.health_points += items.item.health_points
     items.quantity -= 1

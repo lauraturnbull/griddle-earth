@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from engine.adapters.postgres import persister
-from engine.core import responses, types
+from engine.core import constants, responses, types
 from engine.core.commands import command_parser
 from engine.core.resources.base import adventure_log, map
 
@@ -28,7 +28,7 @@ def create_new_game(
     session: Session = Depends(dependencies.session),
 ) -> types.Game:
     base_game = types.NewGame(
-        health_points=1000,
+        health_points=constants.MAX_HP,
         inventory=types.NewInventory(),
         created=get_now(),
     )

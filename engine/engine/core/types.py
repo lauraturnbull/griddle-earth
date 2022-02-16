@@ -237,6 +237,11 @@ class LookAtResponse(BaseModel):
     visible_items: List[ItemsOut]
 
 
+class DropResponse(BaseModel):
+    location: str
+    dropped_item: ItemsOut
+
+
 # purely internal
 
 
