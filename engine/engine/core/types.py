@@ -3,6 +3,7 @@ from enum import Enum
 from typing import List, Optional
 
 from aenum import MultiValueEnum
+from humps import camelize
 from pydantic import BaseModel
 
 # enums
@@ -16,6 +17,7 @@ class Action(MultiValueEnum):
     set_trap = "set trap"
     cook = "cook", "c"
     eat = "eat", "e"
+    drop = "drop"
 
     @classmethod
     def values(cls):
@@ -185,40 +187,48 @@ class NewGame(BaseModel):
 
 
 # command return types
+def to_camel(string):
+    return camelize(string)
 
 
-class DiscoveredLocationsByRegion(BaseModel):
+class CamelModel(BaseModel):
+    class Config:
+        alias_generator = to_camel
+        allow_population_by_field_name = True
+
+
+class DiscoveredLocationsByRegion(CamelModel):
     region: Region
     discovered: int = 0
     discoverable: int
 
 
-class DiscoveredItemsByType(BaseModel):
+class DiscoveredItemsByType(CamelModel):
     item_type: ItemType
     discovered: int = 0
     discoverable: int
 
 
-class AdventureLogOut(BaseModel):
+class AdventureLogOut(CamelModel):
     """Formatted locations and items discovered"""
 
     locations_discovered: List[DiscoveredLocationsByRegion]
     items_discovered: List[DiscoveredItemsByType]
 
 
-class LocationOut(BaseModel):
+class LocationOut(CamelModel):
     name: str
     description: str
     region: Region
 
 
-class ItemsOut(BaseModel):
+class ItemsOut(CamelModel):
     quantity: int
     name: str
     health_points: int
 
 
-class MoveResponse(BaseModel):
+class MoveResponse(CamelModel):
     health_points: int
     location: LocationOut
 
@@ -228,16 +238,16 @@ class EatResponse(BaseModel):
     consumed_item: ItemsOut
 
 
-class LookAroundResponse(BaseModel):
+class LookAroundResponse(CamelModel):
     names: List[str]
 
 
-class LookAtResponse(BaseModel):
+class LookAtResponse(CamelModel):
     description: str
     visible_items: List[ItemsOut]
 
 
-class DropResponse(BaseModel):
+class DropResponse(CamelModel):
     location: str
     dropped_item: ItemsOut
 
