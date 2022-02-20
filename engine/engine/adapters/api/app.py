@@ -5,6 +5,7 @@ from typing import Any, Dict, Optional
 import attr
 import yaml
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
@@ -63,6 +64,14 @@ def create_app(config: Optional[AppConfig] = None) -> FastAPI:
     )
 
     app.include_router(views.v1, prefix="/v1")
+
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=["http://localhost", "http://localhost:3000"],
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
 
     return app
 
