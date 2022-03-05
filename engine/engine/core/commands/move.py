@@ -4,15 +4,19 @@ from sqlalchemy.orm import Session
 from engine.adapters.postgres import persister
 from engine.core import constants, types
 
+from .helpers import get_location_description
+
 
 def handle_command(
     session: Session, game: types.Game, command: types.Command
-) -> types.MoveResponse:
+) -> types.Response:
     if game.location is None:
         raise HTTPException(
             status_code=422,
             detail="No location - game not started",
         )
+    if not command.context:
+        return types.Response(message=constants.MISSING_DIRECTION)
     coordinates = game.location.coordinates
     directions = [types.Ordinal(d) for d in command.context]
     for direction in directions:
@@ -28,11 +32,8 @@ def handle_command(
     new_location = persister.get_map_location_by_coordinates(
         session, game_id=game.id, coordinates=coordinates
     )
-    if new_location is None:  # todo - return something instead of raise
-        raise HTTPException(
-            status_code=422,
-            detail=("You cannot go that way"),
-        )
+    if new_location is None:
+        return types.Response(message=constants.FORBIDDEN_DIRECTION)
 
     # update the game state
     game.location = new_location
@@ -44,7 +45,8 @@ def handle_command(
         session, game_id=game.id, location=game.location
     )
 
-    return types.MoveResponse(
+    return types.Response(
         health_points=game.health_points,
         location=types.LocationOut(**game.location.dict()),
+        message=get_location_description(game.location),
     )

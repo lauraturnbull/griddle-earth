@@ -1,4 +1,4 @@
-from typing import Any, Callable, Dict, List, Union
+from typing import Any, Callable, Dict, List
 
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
@@ -49,19 +49,7 @@ class CommandParser:
         command = types.Command(action=self.action, context=self.context)
         command_map: Dict[
             Any,
-            Callable[
-                [Session, types.Game, types.Command],
-                Union[
-                    types.MoveResponse,
-                    types.LookAroundResponse,
-                    types.LookAtResponse,
-                    types.ItemsOut,
-                    types.EatResponse,
-                    types.DropResponse,
-                    types.Error,
-                    None,
-                ],
-            ],
+            Callable[[Session, types.Game, types.Command], types.Response],
         ]
         command_map = {
             types.Action.start: start.handle_command,

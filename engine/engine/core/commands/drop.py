@@ -1,5 +1,3 @@
-from typing import Union
-
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
@@ -12,17 +10,22 @@ from . import helpers
 
 def handle_command(
     session: Session, game: types.Game, command: types.Command
-) -> Union[types.DropResponse, types.Error]:
+) -> types.Response:
     # find item in inventory
     item_name = " ".join(command.context)
     name_variants = helpers.get_noun_variants(item_name)
 
     items = next(
-        (i for i in game.inventory.items if i.item.name in name_variants), None
+        (
+            i
+            for i in game.inventory.items
+            if i.item.name.lower() in name_variants
+        ),
+        None,
     )
     if items is None:
-        return types.Error(
-            message=f"No {item_name} found in inventory to drop."
+        return types.Response(
+            message=constants.MISSING_INVENTORY_ITEM.format(item_name)
         )
 
     assert game.location is not None
@@ -81,11 +84,6 @@ def handle_command(
 
     persister.update_map_location(session, game.id, map_location)
 
-    return types.DropResponse(
-        location=constants.DISCARD_PILE,
-        dropped_item=types.ItemsOut(
-            quantity=1,
-            name=items.item.name,
-            health_points=items.item.health_points,
-        ),
+    return types.Response(
+        message=constants.DROPPED_ITEM.format(items.item.name)
     )

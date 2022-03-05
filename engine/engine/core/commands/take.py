@@ -1,6 +1,3 @@
-from typing import Union
-
-from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
 from engine.core import types
@@ -10,7 +7,7 @@ from .helpers import move_item_to_inventory
 
 def handle_command(
     session: Session, game: types.Game, command: types.Command
-) -> Union[types.ItemsOut, types.Error]:
+) -> types.Response:
 
     """
     Input pattern is like:
@@ -32,13 +29,7 @@ def handle_command(
     try:
         delimiter_index = context.index(delimiter)
     except ValueError:
-        raise HTTPException(
-            status_code=422,
-            detail=(
-                "You must provide the location when taking items, i.e: "
-                "take [[all] item] from [place]"
-            ),
-        )
+        return types.Response(message="From where?")
 
     item_name = " ".join(context[:delimiter_index])
     component_name = " ".join(context[delimiter_index + 1 :])
@@ -49,5 +40,8 @@ def handle_command(
         item_name=item_name,
         component_name=component_name,
         take_all=take_all,
-        collection_method=types.ItemCollectionMethod.forage,
+        collection_method=[
+            types.ItemCollectionMethod.forage,
+            types.ItemCollectionMethod.cook,
+        ],
     )

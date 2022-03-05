@@ -8,39 +8,28 @@ from engine.core import constants, types
 
 
 def get_noun_variants(noun: str) -> List[str]:
-    return [noun, noun + "s", noun[:-1]]
+    return [noun, noun + "s", noun[:-1], noun[:-3] + "y", noun[:-1] + "ies"]
 
 
 def get_component(
     components: List[types.Component], component_name: str
-) -> types.Component:
+) -> Optional[types.Component]:
     component_name_variants = get_noun_variants(component_name)
-
     component = next(
         (c for c in components if c.name.lower() in component_name_variants),
         None,
     )
-
-    if component is None:
-        raise HTTPException(
-            status_code=422, detail=f"Cannot find location {component_name}"
-        )
-
     return component
 
 
-def get_items(items_list: List[types.Items], item_name: str) -> types.Items:
+def get_items(
+    items_list: List[types.Items], item_name: str
+) -> Optional[types.Items]:
     items_name_variants = get_noun_variants(item_name)
-
     items = next(
         (i for i in items_list if i.item.name.lower() in items_name_variants),
         None,
     )
-
-    if items is None:
-        raise HTTPException(
-            status_code=422, detail=f"Cannot find any {item_name} to take"
-        )
     return items
 
 
@@ -49,9 +38,9 @@ def move_item_to_inventory(
     game: types.Game,
     component_name: str,
     item_name: str,
-    collection_method: types.ItemCollectionMethod,
+    collection_method: List[types.ItemCollectionMethod],
     take_all: bool = False,
-) -> Union[types.ItemsOut, types.Error]:
+) -> types.Response:
 
     if game.location is None:
         raise HTTPException(
@@ -74,23 +63,29 @@ def move_item_to_inventory(
     map_component = get_component(
         components=map_location.components, component_name=component_name
     )
-    map_items = get_items(items_list=map_component.items, item_name=item_name)
-    if map_items.item.collection_method is not collection_method:
-        raise HTTPException(
-            status_code=422,
-            detail=f"Unable to {collection_method.value} component name",
+    if map_component is None:
+        return types.Response(
+            message=constants.MISSING_COMPONENT.format(component_name)
         )
+    map_items = get_items(items_list=map_component.items, item_name=item_name)
 
+    if map_items is None:
+        return types.Response(
+            message=constants.MISSING_ITEM_IN_COMPONENT.format(
+                item={item_name}, component=component_name
+            )
+        )
+    if map_items.item.collection_method not in collection_method:
+        return types.Response(
+            message=constants.FORBIDDEN_ACTION_ITEM.format(
+                action=collection_method.value, item=item_name
+            )
+        )
     if (
         sum(i.quantity for i in game.inventory.items) + map_items.quantity
         > constants.MAX_INVENTORY_SIZE  # noqa W503
     ):
-        return types.Error(
-            message=f"Cannot exceed maximum inventory size of "
-            f"{constants.MAX_INVENTORY_SIZE}. Cook, consume, or drop "
-            f"items to reduce the size of your inventory."
-        )
-
+        return types.Response(message=constants.EXCEEDED_MAX_INVENTORY)
     inventory_items: Optional[Union[types.Items, types.NewItems]]
     inventory_items = next(
         (
@@ -107,9 +102,10 @@ def move_item_to_inventory(
         )
         # shouts when adding for the first time
         game.inventory.items.append(inventory_items)  # type: ignore
-
+    quantity_taken = 1
     if take_all:
         inventory_items.quantity += map_items.quantity
+        quantity_taken = map_items.quantity
         map_items.quantity = 0
     else:
         inventory_items.quantity += 1
@@ -117,7 +113,6 @@ def move_item_to_inventory(
 
     if map_items.quantity == 0:
         map_component.items.remove(map_items)
-
     game.location = map_location
 
     persister.update_map_location(
@@ -128,8 +123,30 @@ def move_item_to_inventory(
     persister.update_adventure_log_discovered_items(
         session, game_id=game.id, item=inventory_items.item
     )
-    return types.ItemsOut(
-        quantity=inventory_items.quantity,
-        name=inventory_items.item.name,
-        health_points=inventory_items.item.health_points,
+    return types.Response(
+        message=constants.TOOK_ITEM.format(
+            quantity=quantity_taken, item=item_name
+        )
+    )
+
+
+def sentence_from_list_of_names(names: List[str]) -> Optional[str]:
+    if len(names) == 1:
+        return f"{names[0]}."
+    elif len(names) == 2:
+        return f"{names[0]} and {names[1]}."
+    elif len(names) >= 3:
+        msg = ""
+        for n in names[:-1]:
+            msg += f"{n}, "
+        return f"{msg} and {names[-1]}."
+    return None
+
+
+def get_location_description(location: types.Location) -> str:
+    components_str = sentence_from_list_of_names(
+        [i.name for i in location.components]
+    )
+    return constants.LOCATION_DESCRIPTION.format(
+        location=location.description, components=components_str
     )

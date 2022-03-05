@@ -222,34 +222,10 @@ class LocationOut(CamelModel):
     region: Region
 
 
-class ItemsOut(CamelModel):
-    quantity: int
-    name: str
-    health_points: int
-
-
-class MoveResponse(CamelModel):
-    health_points: int
-    location: LocationOut
-
-
-class EatResponse(BaseModel):
-    health_points: int
-    consumed_item: ItemsOut
-
-
-class LookAroundResponse(CamelModel):
-    names: List[str]
-
-
-class LookAtResponse(CamelModel):
-    description: str
-    visible_items: List[ItemsOut]
-
-
-class DropResponse(CamelModel):
-    location: str
-    dropped_item: ItemsOut
+class Response(CamelModel):
+    health_points: Optional[int]
+    location: Optional[LocationOut]
+    message: str
 
 
 # purely internal
@@ -265,7 +241,3 @@ class Recipe(BaseModel):
 
 class RecipeBook(BaseModel):
     recipes: List[Recipe] = []
-
-
-class Error(BaseModel):
-    message: str

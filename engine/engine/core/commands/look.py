@@ -1,43 +1,49 @@
-from typing import Union
-
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
-from engine.core import types
+from engine.core import constants, types
 
-from .helpers import get_component
+from .helpers import (
+    get_component,
+    get_location_description,
+    sentence_from_list_of_names,
+)
 
 
 def handle_command(
     session: Session, game: types.Game, command: types.Command
-) -> Union[types.LookAroundResponse, types.LookAtResponse]:
+) -> types.Response:
     if game.location is None:
         raise HTTPException(
             status_code=422,
             detail=("No location - game not started"),
         )
-    if "around" in command.context:
-        return types.LookAroundResponse(
-            names=[c.name for c in game.location.components]
-        )
+    if len(command.context) == 0 or "around" in command.context:
+        return types.Response(message=get_location_description(game.location))
 
+    # looking at a specific component
     component_name = " ".join(command.context).lower()
     component = get_component(game.location.components, component_name)
-    return types.LookAtResponse(
-        description=component.description,
-        # List forageable items and cooked items that were dropped.
-        # Components with hunted items will only have the component description
-        visible_items=[
-            types.ItemsOut(
-                quantity=i.quantity,
-                name=i.item.name,
-                health_points=i.item.health_points,
+    if component is None:
+        return types.Response(
+            message=constants.MISSING_COMPONENT.format(
+                component=component_name
             )
-            for i in component.items
-            if i.item.collection_method
-            in (
-                types.ItemCollectionMethod.forage,
-                types.ItemCollectionMethod.cook,
-            )
-        ],
-    )
+        )
+
+    # items we can forage or were dropped
+    collectable_items = [
+        i.item.name
+        for i in component.items
+        if i.item.collection_method
+        in (types.ItemCollectionMethod.forage, types.ItemCollectionMethod.cook)
+    ]
+
+    msg = component.description
+    if collectable_items:
+        items_str = sentence_from_list_of_names(collectable_items)
+        msg = constants.COMPONENT_DESCRIPTION.format(
+            component=component.description, items=items_str
+        )
+
+    return types.Response(message=msg)

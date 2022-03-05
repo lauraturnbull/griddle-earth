@@ -4,10 +4,12 @@ from sqlalchemy.orm import Session
 from engine.adapters.postgres import persister
 from engine.core import types
 
+from .helpers import get_location_description
+
 
 def handle_command(
     session: Session, game: types.Game, command: types.Command
-) -> types.MoveResponse:
+) -> types.Response:
     """
     Begin the game in location (0,0).
     In future the location could be selected
@@ -24,7 +26,8 @@ def handle_command(
         )
     game.location = location
     persister.update_game(session, game_id=game.id, new_game_state=game)
-    return types.MoveResponse(
+    return types.Response(
         health_points=game.health_points,
         location=types.LocationOut(**location.dict()),
+        message=get_location_description(location),
     )

@@ -1,16 +1,15 @@
-from typing import List
+from typing import List, Optional
 
-from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
 from engine.adapters.postgres import persister
-from engine.core import types
+from engine.core import constants, types
 from engine.core.resources.base import recipe_book
 
 from . import helpers
 
 
-def get_recipe(ingredients: List[types.Item]) -> types.Recipe:
+def get_recipe(ingredients: List[types.Item]) -> Optional[types.Recipe]:
     # check for specific meals first
     recipes = recipe_book.make_recipe_book().recipes
     specific_item_recipes = [r for r in recipes if r.required_items]
@@ -37,19 +36,13 @@ def get_recipe(ingredients: List[types.Item]) -> types.Recipe:
         )
 
         if recipe is None:
-            raise HTTPException(
-                status_code=422,
-                detail=(
-                    f"Could not find recipe for {item_types}"
-                    "item types in recipe book."
-                ),
-            )
+            return None
     return recipe
 
 
 def handle_command(
     session: Session, game: types.Game, command: types.Command
-) -> types.ItemsOut:
+) -> types.Response:
     # first we check that the items are in the inventory
     ingredients: List[types.Item] = []
     flattened_items = list(set(command.context))
@@ -59,18 +52,24 @@ def handle_command(
             (
                 i.item
                 for i in game.inventory.items
-                if i.item.name in name_variants
+                if i.item.name in name_variants and i not in ingredients
             ),
             None,
         )
         if item is None:
-            raise HTTPException(
-                status_code=422,
-                detail=f"No {item_name} in inventory found to cook with",
+            return types.Response(
+                message=constants.MISSING_INVENTORY_ITEM.format(item_name),
             )
         ingredients.append(item)
 
     recipe = get_recipe(ingredients)
+    if recipe is None:
+        ingredient_str = helpers.sentence_from_list_of_names(
+            [i.name for i in ingredients]
+        )
+        return types.Response(
+            message=constants.MISSING_RECIPE.format(ingredient_str)
+        )
 
     new_meal = types.NewItems(
         quantity=1,
@@ -98,8 +97,9 @@ def handle_command(
         session, game.id, item=new_meal.item
     )
 
-    return types.ItemsOut(
-        quantity=1,
-        name=new_meal.item.name,
-        health_points=new_meal.item.health_points,
+    return types.Response(
+        message=constants.NEW_MEAL.format(
+            item_name=new_meal.item.name,
+            health_points=new_meal.item.health_points,
+        )
     )

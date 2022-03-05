@@ -1,5 +1,4 @@
 import random
-from typing import Optional, Union
 
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
@@ -16,7 +15,7 @@ def try_capture_item(weight):
 
 def handle_command(
     session: Session, game: types.Game, command: types.Command
-) -> Optional[Union[types.ItemsOut, types.Error]]:
+) -> types.Response:
 
     """
     input looks like:
@@ -45,11 +44,7 @@ def handle_command(
         sum(i.quantity for i in game.inventory.items)
         == constants.MAX_INVENTORY_SIZE  # noqa W503
     ):
-        return types.Error(
-            message=f"Cannot exceed maximum inventory size of "
-            f"{constants.MAX_INVENTORY_SIZE}. Cook, consume, or drop "
-            f"items to reduce the size of your inventory."
-        )
+        return types.Response(message=constants.EXCEEDED_MAX_INVENTORY)
 
     component_name = " ".join(
         command.context[component_start_index + 1 : item_start_index]
@@ -59,6 +54,10 @@ def handle_command(
     component = get_component(
         components=game.location.components, component_name=component_name
     )
+    if component is None:
+        return types.Response(
+            message=constants.MISSING_COMPONENT.format(component_name)
+        )
 
     hunted_items = next(
         (
@@ -69,9 +68,8 @@ def handle_command(
         None,
     )
     if hunted_items is None:
-        raise HTTPException(
-            status_code=422,
-            detail=f"Nothing available to hunt in {component_name}",
+        return types.Response(
+            message=constants.NOTHING_TO_HUNT.format(component_name),
         )
 
     # always delete bait from inventory
@@ -79,23 +77,32 @@ def handle_command(
         (i for i in game.inventory.items if i.item.name == bait_name), None
     )
     if bait_items is None:
-        raise HTTPException(
-            status_code=422,
-            detail=f"No {bait_name} found in inventory",
+        return types.Response(
+            message=constants.MISSING_INVENTORY_ITEM.format(bait_name),
         )
     bait_items.quantity -= 1
     persister.update_game(session, game.id, game)
 
-    item_captured = try_capture_item(50 + hunted_items.item.health_points / 10)
+    item_captured = try_capture_item(50 + bait_items.item.health_points / 10)
 
     if item_captured:
-        return move_item_to_inventory(
+        move_item_to_inventory(
             session,
             game=game,
             item_name=hunted_items.item.name,
             component_name=component_name,
-            collection_method=types.ItemCollectionMethod.hunt,
+            collection_method=[types.ItemCollectionMethod.hunt],
+        )
+        return types.Response(
+            message=constants.SUCCESSFUL_TRAP.format(
+                component=component_name,
+                bait=bait_items.item.name,
+                prey=hunted_items.item.name,
+            )
         )
 
-    # todo - new failed trap type
-    return None
+    return types.Response(
+        message=constants.FAILED_TRAP.format(
+            component=component_name, bait=bait_items.item.name
+        )
+    )
