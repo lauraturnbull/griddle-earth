@@ -102,16 +102,6 @@ def make_new_adventure_log(
     )
 
 
-def make_command(
-    action: str = "move",
-    context: str = "north",
-) -> types.Command:
-    return types.Command(
-        action=types.Action(action),
-        context=context.lower().replace(",", "").split(),
-    )
-
-
 def make_new_game(
     health_points: int = 1000,
     inventory: Optional[types.NewInventory] = None,
@@ -256,11 +246,11 @@ def make_location_out(
     )
 
 
-def make_move_response(
-    health_points: int = 1000, location_out: Optional[types.LocationOut] = None
-) -> types.MoveResponse:
-    if location_out is None:
-        location_out = make_location_out()
-    return types.MoveResponse(
-        health_points=health_points, location=location_out
+def make_response(
+    message: str,
+    health_points: Optional[int] = None,
+    location: Optional[types.LocationOut] = None,
+) -> types.Response:
+    return types.Response(
+        health_points=health_points, location=location, message=message
     )

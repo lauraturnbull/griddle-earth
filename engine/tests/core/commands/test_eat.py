@@ -41,14 +41,12 @@ def test_eat_item(session: Session) -> None:
     resp = eat.handle_command(
         session,
         game,
-        command=core.make_command(action="eat", context="apples"),
+        context=["apples"],
     )
-    assert resp == types.EatResponse(
-        health_points=1030,
-        consumed_item=types.ItemsOut(
-            quantity=1, name="apple", health_points=30
-        ),
+    assert resp == types.Response(
+        health_points=1030, message="You ate apple (+30hp)."
     )
+
     game = persister.get_game_by_id(session, game.id)
     assert game is not None
     assert len(game.inventory.items) == 2
@@ -93,14 +91,12 @@ def test_eat_last_item(session: Session) -> None:
     resp = eat.handle_command(
         session,
         game,
-        command=core.make_command(action="eat", context="wheat"),
+        context=["wheat"],
     )
-    assert resp == types.EatResponse(
-        health_points=1020,
-        consumed_item=types.ItemsOut(
-            quantity=1, name="wheat", health_points=20
-        ),
+    assert resp == types.Response(
+        health_points=1020, message="You ate wheat (+20hp)."
     )
+
     game = persister.get_game_by_id(session, game.id)
     assert game is not None
     assert game.inventory.items == []

@@ -10,12 +10,18 @@ def make_base_map() -> types.NewMap:
                     x_coordinate=0,
                     y_coordinate=0,
                 ),
-                name="No Place Like Home",
-                description="You're at home, the best kitchen in all Griddle "
-                "Earth. Where better to prepare meals from "
-                "ingredients around the world.",
+                name="Southern Plains",
+                description="You are on a grassy plain. The land stretches out around you in all directions. To the east you can see some sparse trees.",
                 region=types.Region.home_plains,
-                components=[],
+                components=[
+                    types.NewComponent(
+                        name="small plant",
+                        description="It is a short bushy plant with green leaves and white flowers.",
+                        items=[
+                            types.NewItems(item=items.strawberry, quantity=3)
+                        ],
+                    )
+                ],
             ),
             types.NewLocation(
                 coordinates=types.Coordinates(
@@ -23,7 +29,7 @@ def make_base_map() -> types.NewMap:
                     y_coordinate=0,
                 ),
                 name="Farmer Tam's Place",
-                description="You're at Farmer Tam's place, the largest"
+                description="You're at Farmer Tam's place, the largest "
                 "orchards in the Home Plains.",
                 region=types.Region.home_plains,
                 components=[

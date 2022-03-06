@@ -42,11 +42,9 @@ def test_take_item(session: Session) -> None:
         session=session,
         game=new_game,
         # note - "the"/"a" is stripped before this function call
-        command=core.make_command(action="take", context="apples from trees"),
+        context=["apples", "from", "trees"],
     )
-    assert type(resp) == types.ItemsOut
-    assert resp.quantity == 1
-    assert resp.name == "apple"
+    assert resp == types.Response(message="You have taken 1x apples.")
 
     # check inventory has been updated
     game = persister.get_game_by_id(session, game_id=new_game.id)
@@ -73,9 +71,7 @@ def test_take_item(session: Session) -> None:
     # take again
 
     take.handle_command(
-        session=session,
-        game=game,
-        command=core.make_command(action="take", context="apples from trees"),
+        session=session, game=game, context=["apples", "from", "trees"]
     )
     # check inventory has been updated
     assert len(game.inventory.items) == 1
@@ -124,8 +120,8 @@ def test_take_item_full_inventory(session: Session) -> None:
     assert len(game.inventory.items) == 2
 
     resp = take.handle_command(
-        session,
-        game,
-        command=core.make_command(action="take", context="apples from trees"),
+        session, game, context=["apples", "from", "trees"]
     )
-    assert type(resp) == types.Error
+    assert resp == types.Response(
+        message="Cannot exceed maximum inventory size of 10. Cook, consume, or drop items to reduce the size of your inventory."
+    )

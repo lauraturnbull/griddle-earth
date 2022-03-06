@@ -2,10 +2,12 @@ from datetime import datetime
 from typing import Any
 from unittest.mock import patch
 
+import pytest
 from fastapi.encoders import jsonable_encoder
 from fastapi.testclient import TestClient
 from freezegun import freeze_time
 
+from engine.core.commands import command_parser
 from tests.factories import core
 
 frozen_time = datetime(2022, 2, 2)
@@ -93,4 +95,24 @@ def test_start_game(patched_map: Any, client: TestClient) -> None:
     resp = client.post(
         f"v1/game/{game.id}/command", params=dict(input="start")
     )
-    assert resp.json() == jsonable_encoder(core.make_move_response())
+    assert resp.json() == jsonable_encoder(
+        core.make_response(
+            health_points=1000,
+            location=core.make_location_out(),
+            message="A descriptive description Looking around you see trees.",
+        )
+    )
+
+
+@pytest.mark.parametrize(
+    "input, action",
+    (
+        ("go east", command_parser.Move),
+        ("move east", command_parser.Move),
+        ("set a trap in", command_parser.Trap),
+    ),
+)
+def test_aliases(input, action) -> None:
+    assert (
+        command_parser.CommandParser("dummy_session", input).action == action
+    )

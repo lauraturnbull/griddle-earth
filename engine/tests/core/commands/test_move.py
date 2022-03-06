@@ -43,10 +43,13 @@ def test_move(session: Session) -> None:
     resp = move.handle_command(
         session=session,
         game=new_game,
-        command=core.make_command(action="move", context="north east"),
+        context=["north", "east"],
     )
-    assert type(resp) is types.MoveResponse
-    assert resp.health_points == 700
+    assert resp == types.Response(
+        health_points=700,
+        location=core.make_location_out(),
+        message="A descriptive description Looking around you see trees.",
+    )
     game = persister.get_game_by_id(session, new_game.id)
     assert game is not None
     assert game.location is not None
@@ -99,10 +102,13 @@ def test_handles_variants(session: Session, direction: str) -> None:
     resp = move.handle_command(
         session=session,
         game=new_game,
-        command=core.make_command(action="move", context=direction),
+        context=[direction],
     )
-    assert type(resp) is types.MoveResponse
-    assert resp.health_points == 700
+    assert resp == types.Response(
+        health_points=700,
+        location=core.make_location_out(),
+        message="A descriptive description Looking around you see trees.",
+    )
     game = persister.get_game_by_id(session, new_game.id)
     assert game is not None
     assert game.location is not None
@@ -116,22 +122,22 @@ def unknown_direction(session: Session) -> None:
     # make game and map and add to db
     game = helpers.make_game_in_map_location(session)
     # in future will be a different exception/response
+    # todo fix me
     with pytest.raises(HTTPException):
         move.handle_command(
             session=session,
             game=game,
-            command=core.make_command(action="move", context="morth"),
+            context=["morth"],
         )
 
 
 @freeze_time(frozen_time)
-def test_move_raises_on_no_location(session: Session) -> None:
+def test_move_no_location(session: Session) -> None:
     # make game and map and add to db
     game = helpers.make_game_in_map_location(session)
-    # in future will be a different exception/response
-    with pytest.raises(HTTPException):
-        move.handle_command(
-            session=session,
-            game=game,
-            command=core.make_command(action="move", context="north"),
-        )
+    resp = move.handle_command(
+        session=session,
+        game=game,
+        context=["north"],
+    )
+    assert resp == types.Response(message="You cannot go that way.")

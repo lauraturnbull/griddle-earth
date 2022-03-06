@@ -19,30 +19,22 @@ class Actions(BaseModel):
     actions: List[Action]
 
 
-actions = Actions(
-    actions=[
-        Action(name="cook", aliases=["cook"], handler=cook.handle_command),
-        Action(
-            name="drop",
-            aliases=["drop", "remove"],
-            handler=drop.handle_command,
-        ),
-        Action(name="eat", aliases=["eat"], handler=eat.handle_command),
-        Action(name="look", aliases=["look"], handler=look.handle_command),
-        Action(
-            name="move", aliases=["move", "go"], handler=move.handle_command
-        ),
-        Action(name="start", aliases=["start"], handler=start.handle_command),
-        Action(
-            name="take", aliases=["take", "grab"], handler=take.handle_command
-        ),
-        Action(
-            name="trap",
-            aliases=["set trap", "make trap"],
-            handler=trap.handle_command,
-        ),
-    ]
+Cook = Action(name="cook", aliases=["cook"], handler=cook.handle_command)
+Drop = Action(
+    name="drop", aliases=["drop", "remove"], handler=drop.handle_command
 )
+Eat = Action(name="eat", aliases=["eat"], handler=eat.handle_command)
+Look = Action(name="look", aliases=["look"], handler=look.handle_command)
+Move = Action(name="move", aliases=["move", "go"], handler=move.handle_command)
+Start = Action(name="start", aliases=["start"], handler=start.handle_command)
+Take = Action(
+    name="take", aliases=["take", "grab"], handler=take.handle_command
+)
+Trap = Action(
+    name="trap", aliases=["set trap", "make trap"], handler=trap.handle_command
+)
+
+actions = Actions(actions=[Cook, Drop, Eat, Look, Move, Start, Take, Trap])
 
 null_words = ["the", "a", "an", "at"]
 
@@ -69,7 +61,7 @@ class CommandParser:
 
     def normalise_context(self) -> List[str]:
         if self.action is None:
-            raise Exception("Expected action to be set by now")
+            raise Exception("expected action to be set by now")
 
         action = next(a for a in self.action.aliases if a in self.command)
         try:

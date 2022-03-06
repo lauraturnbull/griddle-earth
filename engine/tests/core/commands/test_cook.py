@@ -21,7 +21,7 @@ def test_cook_specific_recipe(session: Session) -> None:
     new_game.inventory.items = [
         core.make_new_items(
             item=core.make_new_item(  # type: ignore
-                name="apple", health_points=30
+                name="apples", health_points=30
             ),
             quantity=2,
         ),
@@ -40,17 +40,20 @@ def test_cook_specific_recipe(session: Session) -> None:
     resp = cook.handle_command(
         session,
         game,
-        command=core.make_command(action="cook", context="apples, wheat"),
+        context=["apples", "wheat"],
     )
-    assert resp == types.ItemsOut(
-        quantity=1, name="Apple Pie", health_points=200
+    assert resp == types.Response(
+        message="Added Apple Pie (+200hp) to your inventory."
     )
+
     game = persister.get_game_by_id(session, game.id)
     assert game is not None
     assert len(game.inventory.items) == 2
     assert game.inventory.items == [
         core.make_items(
-            id=3, item=core.make_item(id=4, health_points=30), quantity=1
+            id=3,
+            item=core.make_item(id=4, name="apples", health_points=30),
+            quantity=1,
         ),
         core.make_items(
             id=5,

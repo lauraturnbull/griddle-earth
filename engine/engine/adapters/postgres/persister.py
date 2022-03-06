@@ -331,7 +331,7 @@ def get_map_location_by_coordinates(
 
 def update_map_location(
     session: Session, game_id: int, new_location_state: types.Location
-) -> types.Location:
+) -> None:
 
     # existing
     qry = (
@@ -352,7 +352,7 @@ def update_map_location(
     new_location_db = location_app_to_db(new_location_state)
     new_location_db.id = location_db.id
     session.merge(new_location_db)
-    session.flush()
     session.commit()
+    session.flush()
 
-    return location_db_to_app(new_location_db)
+    return
