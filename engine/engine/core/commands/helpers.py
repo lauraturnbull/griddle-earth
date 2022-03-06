@@ -134,15 +134,24 @@ def move_item_to_inventory(
 
 
 def sentence_from_list_of_names(names: List[str]) -> Optional[str]:
-    if len(names) == 1:
-        return f"{names[0]}."
-    elif len(names) == 2:
-        return f"{names[0]} and {names[1]}."
-    elif len(names) >= 3:
+    updated_names = []
+    for n in names:
+        if n[0].lower() in ["a", "e", "i", "o", "u"] and n[-1] != "s":
+            updated_names.append("an " + n)
+        elif n[-1] != "s":
+            updated_names.append("a " + n)
+        else:
+            updated_names.append(n)
+
+    if len(updated_names) == 1:
+        return f"{updated_names[0]}."
+    elif len(updated_names) == 2:
+        return f"{updated_names[0]} and {updated_names[1]}."
+    elif len(updated_names) >= 3:
         msg = ""
-        for n in names[:-1]:
+        for n in updated_names[:-1]:
             msg += f"{n}, "
-        return f"{msg} and {names[-1]}."
+        return f"{msg} and {updated_names[-1]}."
     return None
 
 
