@@ -1,4 +1,5 @@
 import random
+from typing import List
 
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
@@ -14,9 +15,8 @@ def try_capture_item(weight):
 
 
 def handle_command(
-    session: Session, game: types.Game, command: types.Command
+    session: Session, game: types.Game, context: List[str]
 ) -> types.Response:
-
     """
     input looks like:
     set trap in <component> with <inventory item>
@@ -26,18 +26,17 @@ def handle_command(
             status_code=422,
             detail=("No location - game not started"),
         )
-    component_delimiter = "from"
-    item_delimiter = "with"
+    component_delimiter = "in"
+    item_delimiter = "with"  # todo - or "using"
     try:
-        component_start_index = command.context.index(component_delimiter)
-        item_start_index = command.context.index(item_delimiter)
+        component_start_index = context.index(component_delimiter)
     except ValueError:
-        raise HTTPException(
-            status_code=422,
-            detail=(
-                "You must provide the location and bait item when setting a"
-                " trap: `set trap in [location] with [item]`"
-            ),
+        return types.Response(message="Where do you want to set the trap?")
+    try:
+        item_start_index = context.index(item_delimiter)
+    except ValueError:
+        return types.Response(
+            message="You must provide bait from your inventory to set a trap."
         )
 
     if (
@@ -47,16 +46,18 @@ def handle_command(
         return types.Response(message=constants.EXCEEDED_MAX_INVENTORY)
 
     component_name = " ".join(
-        command.context[component_start_index + 1 : item_start_index]
+        context[component_start_index + 1 : item_start_index]
     )
-    bait_name = " ".join(command.context[item_start_index + 1 :])
+    bait_name = " ".join(context[item_start_index + 1 :])
 
     component = get_component(
         components=game.location.components, component_name=component_name
     )
     if component is None:
         return types.Response(
-            message=constants.MISSING_COMPONENT.format(component_name)
+            message=constants.MISSING_COMPONENT.format(
+                component=component_name
+            )
         )
 
     hunted_items = next(
@@ -69,7 +70,7 @@ def handle_command(
     )
     if hunted_items is None:
         return types.Response(
-            message=constants.NOTHING_TO_HUNT.format(component_name),
+            message=constants.NOTHING_TO_HUNT.format(component=component_name),
         )
 
     # always delete bait from inventory
@@ -78,12 +79,12 @@ def handle_command(
     )
     if bait_items is None:
         return types.Response(
-            message=constants.MISSING_INVENTORY_ITEM.format(bait_name),
+            message=constants.MISSING_INVENTORY_ITEM.format(item=bait_name),
         )
     bait_items.quantity -= 1
     persister.update_game(session, game.id, game)
 
-    item_captured = try_capture_item(50 + bait_items.item.health_points / 10)
+    item_captured = try_capture_item(40 + bait_items.item.health_points / 10)
 
     if item_captured:
         move_item_to_inventory(

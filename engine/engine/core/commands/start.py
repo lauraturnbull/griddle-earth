@@ -1,3 +1,5 @@
+from typing import List
+
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
@@ -8,7 +10,7 @@ from .helpers import get_location_description
 
 
 def handle_command(
-    session: Session, game: types.Game, command: types.Command
+    session: Session, game: types.Game, context: List[str]
 ) -> types.Response:
     """
     Begin the game in location (0,0).

@@ -41,12 +41,12 @@ def get_recipe(ingredients: List[types.Item]) -> Optional[types.Recipe]:
 
 
 def handle_command(
-    session: Session, game: types.Game, command: types.Command
+    session: Session, game: types.Game, context: List[str]
 ) -> types.Response:
     # first we check that the items are in the inventory
     ingredients: List[types.Item] = []
-    flattened_items = list(set(command.context))
-    for item_name in flattened_items:
+    # todo - what about two word ingredients
+    for item_name in context:
         name_variants = helpers.get_noun_variants(item_name)
         item = next(
             (
@@ -58,7 +58,9 @@ def handle_command(
         )
         if item is None:
             return types.Response(
-                message=constants.MISSING_INVENTORY_ITEM.format(item_name),
+                message=constants.MISSING_INVENTORY_ITEM.format(
+                    item=item_name
+                ),
             )
         ingredients.append(item)
 
@@ -68,7 +70,7 @@ def handle_command(
             [i.name for i in ingredients]
         )
         return types.Response(
-            message=constants.MISSING_RECIPE.format(ingredient_str)
+            message=constants.MISSING_RECIPE.format(ingredients=ingredient_str)
         )
 
     new_meal = types.NewItems(
@@ -99,7 +101,7 @@ def handle_command(
 
     return types.Response(
         message=constants.NEW_MEAL.format(
-            item_name=new_meal.item.name,
+            meal_name=new_meal.item.name,
             health_points=new_meal.item.health_points,
         )
     )

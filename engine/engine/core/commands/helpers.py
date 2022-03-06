@@ -65,17 +65,20 @@ def move_item_to_inventory(
     )
     if map_component is None:
         return types.Response(
-            message=constants.MISSING_COMPONENT.format(component_name)
+            message=constants.MISSING_COMPONENT.format(
+                component=component_name
+            )
         )
     map_items = get_items(items_list=map_component.items, item_name=item_name)
 
     if map_items is None:
         return types.Response(
             message=constants.MISSING_ITEM_IN_COMPONENT.format(
-                item={item_name}, component=component_name
+                item=item_name, component=component_name
             )
         )
     if map_items.item.collection_method not in collection_method:
+        # todo fix this
         return types.Response(
             message=constants.FORBIDDEN_ACTION_ITEM.format(
                 action=collection_method.value, item=item_name

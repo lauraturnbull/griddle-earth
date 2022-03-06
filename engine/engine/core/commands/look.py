@@ -1,3 +1,5 @@
+from typing import List
+
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
@@ -11,18 +13,18 @@ from .helpers import (
 
 
 def handle_command(
-    session: Session, game: types.Game, command: types.Command
+    session: Session, game: types.Game, context: List[str]
 ) -> types.Response:
     if game.location is None:
         raise HTTPException(
             status_code=422,
             detail=("No location - game not started"),
         )
-    if len(command.context) == 0 or "around" in command.context:
+    if len(context) == 0 or "around" in context:
         return types.Response(message=get_location_description(game.location))
 
     # looking at a specific component
-    component_name = " ".join(command.context).lower()
+    component_name = " ".join(context).lower()
     component = get_component(game.location.components, component_name)
     if component is None:
         return types.Response(

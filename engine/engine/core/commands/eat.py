@@ -1,3 +1,5 @@
+from typing import List
+
 from sqlalchemy.orm import Session
 
 from engine.adapters.postgres import persister
@@ -7,9 +9,9 @@ from . import helpers
 
 
 def handle_command(
-    session: Session, game: types.Game, command: types.Command
+    session: Session, game: types.Game, context: List[str]
 ) -> types.Response:
-    item_name = " ".join(command.context)
+    item_name = " ".join(context)
     name_variants = helpers.get_noun_variants(item_name)
     items = next(
         (
@@ -21,7 +23,7 @@ def handle_command(
     )
     if items is None:
         return types.Response(
-            message=constants.MISSING_INVENTORY_ITEM.format(item_name)
+            message=constants.MISSING_INVENTORY_ITEM.format(item=item_name)
         )
 
     # todo - cannot exceed max hp

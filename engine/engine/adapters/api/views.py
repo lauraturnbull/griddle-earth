@@ -96,5 +96,5 @@ def handle_command(
         raise HTTPException(
             status_code=422, detail=f"game {game_id} not found"
         )
-    new_state = parser.handle_command(current_state)
-    return new_state
+    response = parser.handle_command(current_state)
+    return response

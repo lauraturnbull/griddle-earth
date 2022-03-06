@@ -9,21 +9,6 @@ from pydantic import BaseModel
 # enums
 
 
-class Action(MultiValueEnum):
-    take = "take", "grab", "t"
-    look = "look", "l"
-    move = "move", "go", "m"
-    start = "start"
-    set_trap = "set trap"
-    cook = "cook", "c"
-    eat = "eat", "e"
-    drop = "drop"
-
-    @classmethod
-    def values(cls):
-        return [function.value for function in list(cls)]
-
-
 class Ordinal(MultiValueEnum):
     north = "north", "n"
     east = "east", "e"
@@ -52,14 +37,6 @@ class Region(str, Enum):
     forest = "forest"
     desert = "desert"
     home_plains = "Home Plains"
-
-
-# input types
-
-
-class Command(BaseModel):
-    action: Action
-    context: List[str]
 
 
 # "core" types - returned from db

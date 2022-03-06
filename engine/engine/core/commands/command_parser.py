@@ -1,64 +1,87 @@
-from typing import Any, Callable, Dict, List
+from typing import Callable, List, Optional
 
-from fastapi import HTTPException
+from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from engine.core import types
 
 from . import cook, drop, eat, look, move, start, take, trap
 
-null_words = ["the", "a", "an", "at", "with"]
+
+class Action(BaseModel):
+    name: str
+    aliases: List[str]
+    handler: Callable[..., types.Response]
+    # description: a helpful string for the output
+
+
+class Actions(BaseModel):
+    actions: List[Action]
+
+
+actions = Actions(
+    actions=[
+        Action(name="cook", aliases=["cook"], handler=cook.handle_command),
+        Action(
+            name="drop",
+            aliases=["drop", "remove"],
+            handler=drop.handle_command,
+        ),
+        Action(name="eat", aliases=["eat"], handler=eat.handle_command),
+        Action(name="look", aliases=["look"], handler=look.handle_command),
+        Action(
+            name="move", aliases=["move", "go"], handler=move.handle_command
+        ),
+        Action(name="start", aliases=["start"], handler=start.handle_command),
+        Action(
+            name="take", aliases=["take", "grab"], handler=take.handle_command
+        ),
+        Action(
+            name="trap",
+            aliases=["set trap", "make trap"],
+            handler=trap.handle_command,
+        ),
+    ]
+)
+
+null_words = ["the", "a", "an", "at"]
 
 
 class CommandParser:
     def __init__(self, session, command):
-        self.action: types.Action = self.normalise_action(command)
-        self.context: List[str] = self.normalise_context(command)
+        self.command = " ".join(
+            i.lower() for i in command.split() if i not in null_words
+        )
+        self.action: Optional[Action] = self.get_action()
         self.session: Session = session
 
-    @staticmethod
-    def normalise_action(command: str) -> types.Action:
-        # maybe need to pop out null_words before getting action
-        # e.g. set a trap
+    def get_action(self) -> Action:
         action = next(
-            (types.Action(a) for a in types.Action.values() if a in command),
+            (
+                a
+                for a in actions.actions
+                for alias in a.aliases
+                if alias in self.command
+            ),
             None,
         )
-        if action is None:
-            # todo give proper list of actions
-            raise HTTPException(
-                status_code=422,
-                detail=f"{action} is not a valid action. Please choose from:"
-                f" {', '.join(types.Action.values())}",
-            )
-
         return action
 
-    def normalise_context(self, command: str) -> List[str]:
+    def normalise_context(self) -> List[str]:
+        if self.action is None:
+            raise Exception("Expected action to be set by now")
+
+        action = next(a for a in self.action.aliases if a in self.command)
         try:
-            context = command.lower().split(self.action.value, 1)[1].lstrip()
-            return [
-                w
-                for w in context.replace(",", "").split()
-                if w not in null_words
-            ]
+            context = self.command.split(action, 1)[1].lstrip()
+            return context.split()
         except IndexError:
             return []
 
-    def handle_command(self, game: types.Game) -> Any:
-        command = types.Command(action=self.action, context=self.context)
-        command_map: Dict[
-            Any,
-            Callable[[Session, types.Game, types.Command], types.Response],
-        ]
-        command_map = {
-            types.Action.start: start.handle_command,
-            types.Action.move: move.handle_command,
-            types.Action.look: look.handle_command,
-            types.Action.take: take.handle_command,
-            types.Action.set_trap: trap.handle_command,
-            types.Action.cook: cook.handle_command,
-            types.Action.eat: eat.handle_command,
-            types.Action.drop: drop.handle_command,
-        }
-        return command_map[self.action](self.session, game, command)
+    def handle_command(self, game: types.Game) -> types.Response:
+        if self.action is None:
+            return types.Response(
+                message=f"Not a valid action. Type 'help' for a list of valid actions.",
+            )
+        context = self.normalise_context()
+        return self.action.handler(self.session, game, context=context)

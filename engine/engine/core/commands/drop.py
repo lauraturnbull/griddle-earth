@@ -1,3 +1,5 @@
+from typing import List
+
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
@@ -9,10 +11,10 @@ from . import helpers
 
 
 def handle_command(
-    session: Session, game: types.Game, command: types.Command
+    session: Session, game: types.Game, context: List[str]
 ) -> types.Response:
     # find item in inventory
-    item_name = " ".join(command.context)
+    item_name = " ".join(context)
     name_variants = helpers.get_noun_variants(item_name)
 
     items = next(
@@ -25,7 +27,7 @@ def handle_command(
     )
     if items is None:
         return types.Response(
-            message=constants.MISSING_INVENTORY_ITEM.format(item_name)
+            message=constants.MISSING_INVENTORY_ITEM.format(item=item_name)
         )
 
     assert game.location is not None
@@ -85,5 +87,5 @@ def handle_command(
     persister.update_map_location(session, game.id, map_location)
 
     return types.Response(
-        message=constants.DROPPED_ITEM.format(items.item.name)
+        message=constants.DROPPED_ITEM.format(item=items.item.name)
     )
