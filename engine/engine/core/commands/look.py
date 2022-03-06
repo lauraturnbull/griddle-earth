@@ -24,7 +24,7 @@ def handle_command(
         return types.Response(message=get_location_description(game.location))
 
     # looking at a specific component
-    component_name = " ".join(context).lower()
+    component_name = " ".join(context)
     component = get_component(game.location.components, component_name)
     if component is None:
         return types.Response(
