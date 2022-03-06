@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 
 from engine.core import types
 
-from . import cook, drop, eat, look, move, start, take, trap
+from . import cook, drop, eat, enter, look, move, start, take, trap
 
 
 class Action(BaseModel):
@@ -24,6 +24,11 @@ Drop = Action(
     name="drop", aliases=["drop", "remove"], handler=drop.handle_command
 )
 Eat = Action(name="eat", aliases=["eat"], handler=eat.handle_command)
+Enter = Action(
+    name="enter",
+    aliases=["enter", "step through", "step into"],
+    handler=enter.handle_command,
+)
 Look = Action(name="look", aliases=["look"], handler=look.handle_command)
 Move = Action(name="move", aliases=["move", "go"], handler=move.handle_command)
 Start = Action(name="start", aliases=["start"], handler=start.handle_command)
@@ -34,7 +39,9 @@ Trap = Action(
     name="trap", aliases=["set trap", "make trap"], handler=trap.handle_command
 )
 
-actions = Actions(actions=[Cook, Drop, Eat, Look, Move, Start, Take, Trap])
+actions = Actions(
+    actions=[Cook, Drop, Eat, Enter, Look, Move, Start, Take, Trap]
+)
 
 null_words = ["the", "a", "an", "at"]
 
@@ -47,7 +54,7 @@ class CommandParser:
         self.action: Optional[Action] = self.get_action()
         self.session: Session = session
 
-    def get_action(self) -> Action:
+    def get_action(self) -> Optional[Action]:
         action = next(
             (
                 a

@@ -68,6 +68,8 @@ class Component(BaseModel):
     name: str  # animal tracks
     description: str  # frequently used, perfect for setting traps
     items: List[Items] = []
+    is_gateway: bool = False
+    transports_to: Optional[Coordinates] = None
 
 
 class Location(BaseModel):
@@ -130,6 +132,8 @@ class NewComponent(BaseModel):
     name: str  # animal tracks
     description: str  # frequently used, perfect for setting traps
     items: List[NewItems] = []
+    is_gateway: bool = False
+    transports_to: Optional[Coordinates] = None
 
 
 class NewLocation(BaseModel):

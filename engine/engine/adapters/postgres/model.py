@@ -1,6 +1,14 @@
 from typing import Any
 
-from sqlalchemy import Column, DateTime, ForeignKey, Integer, MetaData, String
+from sqlalchemy import (
+    Boolean,
+    Column,
+    DateTime,
+    ForeignKey,
+    Integer,
+    MetaData,
+    String,
+)
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import backref, relationship
 
@@ -59,6 +67,9 @@ class Component(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String, nullable=False)
     description = Column(String, nullable=False)
+    is_gateway = Column(Boolean, nullable=False)
+    transports_to_x_coordinate = Column(Integer, nullable=True)
+    transports_to_y_coordinate = Column(Integer, nullable=True)
     items = relationship("Items", backref="component", cascade="all")
 
     location_id = Column(Integer, ForeignKey("location.id"))

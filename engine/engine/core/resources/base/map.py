@@ -20,7 +20,15 @@ def make_base_map() -> types.NewMap:
                         items=[
                             types.NewItems(item=items.strawberry, quantity=3)
                         ],
-                    )
+                    ),
+                    types.NewComponent(
+                        name="murky window",
+                        description="A misty window hangs in the air, apparently with no support. You feel like you can almost see through it, but what you see doesn't look like the landscape behind.",
+                        is_gateway=True,
+                        transports_to=types.Coordinates(
+                            x_coordinate=1, y_coordinate=0
+                        ),
+                    ),
                 ],
             ),
             types.NewLocation(

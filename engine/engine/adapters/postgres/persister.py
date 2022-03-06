@@ -33,7 +33,13 @@ def component_app_to_db(
 ) -> model.Component:
     return model.Component(
         items=[items_app_to_db(i) for i in component.items],
-        **component.dict(exclude={"items"}),
+        transports_to_x_coordinate=component.transports_to.x_coordinate
+        if component.transports_to
+        else None,
+        transports_to_y_coordinate=component.transports_to.y_coordinate
+        if component.transports_to
+        else None,
+        **component.dict(exclude={"items", "transports_to"}),
     )
 
 
@@ -122,6 +128,14 @@ def component_db_to_app(component: model.Component) -> types.Component:
         id=component.id,
         name=component.name,
         description=component.description,
+        is_gateway=component.is_gateway,
+        transports_to=types.Coordinates(
+            x_coordinate=component.transports_to_x_coordinate,
+            y_coordinate=component.transports_to_y_coordinate,
+        )
+        if component.transports_to_x_coordinate is not None
+        and component.transports_to_y_coordinate is not None
+        else None,
         items=[items_db_to_app(i) for i in component.items],
     )
 

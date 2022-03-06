@@ -19,12 +19,14 @@ LOCATION_DESCRIPTION = "{location} Looking around you see {components}"
 COMPONENT_DESCRIPTION = (
     "{component} Looking closer you see that there are {items}"
 )
+GATEWAY_DESCRIPTION = "You step through the {component}. A wave of cold washes over you and for a heartbeat time seems to stand still. The feeling passes almost as soon as it began. Coming to your senses, you realise you are no longer in the {location}."
 MISSING_COMPONENT = "Could not find any {component}."
 MISSING_DIRECTION = "Which direction do you want to move?"
 MISSING_INVENTORY_ITEM = "You don't have any {item} in your inventory."
 MISSING_ITEM_IN_COMPONENT = "There aren't any {item} in the {component}."
 MISSING_RECIPE = "Could not find a recipe for {ingredients}"
 NEW_MEAL = "Added {meal_name} (+{health_points}hp) to your inventory."
+NOT_A_GATEWAY = "You are not able to enter the {component}."
 NOTHING_TO_HUNT = "It doesn't seem like there's anything worthwhile to hunt in the {component}."
 FAILED_TRAP = (
     "You set a trap in the {component} using one of your {bait} "
