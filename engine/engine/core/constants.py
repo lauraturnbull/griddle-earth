@@ -17,7 +17,9 @@ ATE_ITEM = "You ate {item} (+{health_points}hp)."
 DROPPED_ITEM = "You have dropped 1x {item} into a discarded pile."
 TOOK_ITEM = "You have taken {quantity}x {item}."
 LOCATION_DESCRIPTION = "{location} Looking around you see {components}"
-COMPONENT_DESCRIPTION = "{component} Looking closer you see that there {verb} {items}"
+COMPONENT_DESCRIPTION = (
+    "{component} Looking closer you see that there {verb} {items}"
+)
 GATEWAY_DESCRIPTION = "You step through the {component}. A wave of cold washes over you and for a heartbeat time seems to stand still. The feeling passes almost as soon as it began. Coming to your senses, you realise you are no longer in the {location}."
 MISSING_COMPONENT = "Could not find any {component}."
 MISSING_DIRECTION = "Which direction do you want to move?"
