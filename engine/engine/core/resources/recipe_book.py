@@ -33,6 +33,12 @@ def make_recipe_book() -> types.RecipeBook:
                 required_types=[types.ItemType.fruit],
                 boost=2,
             ),
+            types.Recipe(
+                name="Elixir",
+                description="A herby concoction",
+                required_types=[types.ItemType.herb],
+                boost=3,
+            ),
             # specifics
             types.Recipe(
                 name="Salted Pork",

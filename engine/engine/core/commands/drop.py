@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 
 from engine.adapters.postgres import persister
 from engine.core import constants, types
-from engine.core.resources.base import components
+from engine.core.resources import components
 
 from . import helpers
 

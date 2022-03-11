@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 
 from engine.adapters.postgres import persister
 from engine.core import constants, types
-from engine.core.resources.base import recipe_book
+from engine.core.resources import recipe_book
 
 from . import helpers
 
