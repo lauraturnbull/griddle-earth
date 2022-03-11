@@ -1,5 +1,3 @@
-from typing import List
-
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
@@ -11,10 +9,9 @@ from . import helpers
 
 
 def handle_command(
-    session: Session, game: types.Game, context: List[str]
+    session: Session, game: types.Game, item_name: str
 ) -> types.Response:
     # find item in inventory
-    item_name = " ".join(context)
     name_variants = helpers.get_noun_variants(item_name)
 
     items = next(

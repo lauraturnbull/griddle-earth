@@ -1,5 +1,3 @@
-from typing import List
-
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
@@ -14,7 +12,7 @@ from .helpers import (
 
 
 def handle_command(
-    session: Session, game: types.Game, context: List[str]
+    session: Session, game: types.Game, context: str
 ) -> types.Response:
     if game.location is None:
         raise HTTPException(
@@ -25,13 +23,10 @@ def handle_command(
         return types.Response(message=get_location_description(game.location))
 
     # looking at a specific component
-    component_name = " ".join(context)
-    component = get_component(game.location.components, component_name)
+    component = get_component(game.location.components, context)
     if component is None:
         return types.Response(
-            message=constants.MISSING_COMPONENT.format(
-                component=component_name
-            )
+            message=constants.MISSING_COMPONENT.format(component=context)
         )
 
     # items we can forage or were dropped

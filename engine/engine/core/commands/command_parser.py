@@ -23,7 +23,7 @@ Cook = Action(name="cook", aliases=["cook"], handler=cook.handle_command)
 Drop = Action(
     name="drop", aliases=["drop", "remove"], handler=drop.handle_command
 )
-Eat = Action(name="eat", aliases=["eat"], handler=eat.handle_command)
+Eat = Action(name="eat", aliases=["eat", "drink"], handler=eat.handle_command)
 Enter = Action(
     name="enter",
     aliases=["enter", "step through", "step into"],
@@ -66,16 +66,16 @@ class CommandParser:
         )
         return action
 
-    def normalise_context(self) -> List[str]:
+    def normalise_context(self) -> str:
         if self.action is None:
             raise Exception("expected action to be set by now")
 
         action = next(a for a in self.action.aliases if a in self.command)
         try:
             context = self.command.split(action, 1)[1].lstrip()
-            return context.split()
+            return context
         except IndexError:
-            return []
+            return ""
 
     def handle_command(self, game: types.Game) -> types.Response:
         if self.action is None:
@@ -83,4 +83,4 @@ class CommandParser:
                 message=f"Not a valid action. Type 'help' for a list of valid actions.",
             )
         context = self.normalise_context()
-        return self.action.handler(self.session, game, context=context)
+        return self.action.handler(self.session, game, context)

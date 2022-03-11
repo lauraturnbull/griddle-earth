@@ -1,5 +1,3 @@
-from typing import List
-
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
@@ -10,7 +8,7 @@ from .helpers import get_component, get_location_description
 
 
 def handle_command(
-    session: Session, game: types.Game, context: List[str]
+    session: Session, game: types.Game, component_name: str
 ) -> types.Response:
     if game.location is None:
         raise HTTPException(
@@ -18,10 +16,9 @@ def handle_command(
             detail="No location - game not started",
         )
 
-    if not context:
+    if not component_name:
         return types.Response(message="Where do you want enter?")
 
-    component_name = " ".join(context)
     component = get_component(game.location.components, component_name)
     if component is None:
         return types.Response(
@@ -29,8 +26,6 @@ def handle_command(
                 component=component_name
             )
         )
-    print(component.is_gateway)
-    print(component.transports_to)
     if (not component.is_gateway) or (component.transports_to is None):
         return types.Response(
             message=constants.NOT_A_GATEWAY.format(component=component.name)

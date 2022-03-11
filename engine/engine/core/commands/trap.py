@@ -1,5 +1,4 @@
 import random
-from typing import List
 
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
@@ -15,12 +14,13 @@ def try_capture_item(weight):
 
 
 def handle_command(
-    session: Session, game: types.Game, context: List[str]
+    session: Session, game: types.Game, input: str
 ) -> types.Response:
     """
     input looks like:
     set trap in <component> with <inventory item>
     """
+    context = input.split(" ")
     if game.location is None:
         raise HTTPException(
             status_code=422,

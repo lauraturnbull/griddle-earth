@@ -1,5 +1,3 @@
-from typing import List
-
 from sqlalchemy.orm import Session
 
 from engine.core import types
@@ -8,7 +6,7 @@ from .helpers import move_item_to_inventory
 
 
 def handle_command(
-    session: Session, game: types.Game, context: List[str]
+    session: Session, game: types.Game, input: str
 ) -> types.Response:
 
     """
@@ -22,6 +20,7 @@ def handle_command(
     """
 
     take_all = False
+    context = input.split(" ")
     if context[0] == "all":
         take_all = True
         context = context[1:]

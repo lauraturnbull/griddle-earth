@@ -140,7 +140,9 @@ def get_verb(items: List[types.Items]) -> str:
 
 
 def sentence_from_list_of_names(
-    collection: Union[List[types.Component], List[types.Items]]
+    collection: Union[
+        List[types.Component], List[types.Items], List[types.NewItems]
+    ]
 ) -> str:
     use_plural = False
     if all(isinstance(n, types.Component) for n in collection):

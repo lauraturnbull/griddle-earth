@@ -1,5 +1,3 @@
-from typing import List
-
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
@@ -10,7 +8,7 @@ from .helpers import get_location_description
 
 
 def handle_command(
-    session: Session, game: types.Game, context: List[str]
+    session: Session, game: types.Game, context: str
 ) -> types.Response:
     if game.location is None:
         raise HTTPException(
@@ -20,7 +18,7 @@ def handle_command(
     if not context:
         return types.Response(message=constants.MISSING_DIRECTION)
     coordinates = game.location.coordinates
-    directions = [types.Ordinal(d) for d in context]
+    directions = [types.Ordinal(d) for d in context.split()]
     for direction in directions:
         if direction is types.Ordinal.north:
             coordinates.y_coordinate += 1

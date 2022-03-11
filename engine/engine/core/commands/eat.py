@@ -1,5 +1,3 @@
-from typing import List
-
 from sqlalchemy.orm import Session
 
 from engine.adapters.postgres import persister
@@ -9,9 +7,8 @@ from . import helpers
 
 
 def handle_command(
-    session: Session, game: types.Game, context: List[str]
+    session: Session, game: types.Game, item_name: str
 ) -> types.Response:
-    item_name = " ".join(context)
     name_variants = helpers.get_noun_variants(item_name)
     items = next(
         (
@@ -39,6 +36,7 @@ def handle_command(
     return types.Response(
         health_points=game.health_points,
         message=constants.ATE_ITEM.format(
-            item=items.item.name, health_points=items.item.health_points
+            item=helpers.sentence_from_list_of_names([items]),
+            health_points=items.item.health_points,
         ),
     )

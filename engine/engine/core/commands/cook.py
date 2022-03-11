@@ -41,12 +41,13 @@ def get_recipe(ingredients: List[types.Item]) -> Optional[types.Recipe]:
 
 
 def handle_command(
-    session: Session, game: types.Game, context: List[str]
+    session: Session, game: types.Game, input: str
 ) -> types.Response:
     # first we check that the items are in the inventory
     ingredients: List[types.Item] = []
-    # todo - what about two word ingredients
-    for item_name in context:
+    raw_items = input.split(", ")
+    # todo maybe allow quantities?
+    for item_name in raw_items:
         name_variants = helpers.get_noun_variants(item_name)
         item = next(
             (
@@ -66,8 +67,10 @@ def handle_command(
 
     recipe = get_recipe(ingredients)
     if recipe is None:
-        # todo fix this
-        ingredient_str = helpers.sentence_from_list_of_names(ingredients)
+        # todo - faking the quantity for now
+        ingredient_str = helpers.sentence_from_list_of_names(
+            [types.NewItems(quantity=1, item=i) for i in ingredients]
+        )
         return types.Response(
             message=constants.MISSING_RECIPE.format(ingredients=ingredient_str)
         )
