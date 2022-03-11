@@ -13,7 +13,7 @@ EXCEEDED_MAX_INVENTORY = (
     f"items to reduce the size of your inventory."
 )
 # todo - maybe randomise these sentences?
-ATE_ITEM = "You ate {item} (+{health_points}hp)."
+ATE_ITEM = "You consumed {item} (+{health_points}hp)."
 DROPPED_ITEM = "You have dropped 1x {item} into a discarded pile."
 TOOK_ITEM = "You have taken {quantity}x {item}."
 LOCATION_DESCRIPTION = "{location} Looking around you see {components}"
