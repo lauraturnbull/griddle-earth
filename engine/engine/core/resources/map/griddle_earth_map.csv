@@ -1,0 +1,6 @@
+x_coordinate,y_coordinate,location_name,description,region,component_name,component_description,is_gateway,transports_to_x,transports_to_y,quantity,item_name,item_type,health_points,collection_method
+1,4,,"A bay cuts into the forest from the south west. The forest grows to the north and east, and sparse trees give way to the west. ",forest,,,,,,,,,,
+2,4,,"You are in a young, dense forest. The canopy is dominated by birch and oak, which lets dappled light hit the flower covered ground.",forest,shrine,Inside a circle of nine trees there is a large standing stone. The stone is carved with prayers that have been worn away with time.,FALSE,,,3,purple arrow,herb,60,forage
+,,,,,shaded area,A cool shaded area perfect for growing mushrooms,FALSE,,,2,polypore mushrooms,vegetable,40,forage
+,,,,,,,,,,2,morel mushrooms,vegetable,40,forage
+3,4,,"You stand in a flat terrain scattered with shrubs, colourful flowers and unusual grass. There is a wall of dense forest to the west.",grasslands,,,,,,,,,,

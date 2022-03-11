@@ -7,7 +7,8 @@ from sqlalchemy.orm import Session
 from engine.adapters.postgres import persister
 from engine.core import constants, responses, types
 from engine.core.commands import command_parser
-from engine.core.resources.base import adventure_log, map
+from engine.core.resources import adventure_log
+from engine.core.resources.map import map
 
 from . import dependencies
 
@@ -32,7 +33,7 @@ def create_new_game(
         inventory=types.NewInventory(),
         created=get_now(),
     )
-    base_map = map.make_base_map()
+    base_map = map.base_map()
     base_adventure_log = adventure_log.make_base_adventure_log(map=base_map)
     new_game = persister.create_new_game(
         session, game=base_game, map=base_map, adventure_log=base_adventure_log
