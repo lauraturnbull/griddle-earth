@@ -66,9 +66,8 @@ def handle_command(
 
     recipe = get_recipe(ingredients)
     if recipe is None:
-        ingredient_str = helpers.sentence_from_list_of_names(
-            [i.name for i in ingredients]
-        )
+        # todo fix this
+        ingredient_str = helpers.sentence_from_list_of_names(ingredients)
         return types.Response(
             message=constants.MISSING_RECIPE.format(ingredients=ingredient_str)
         )

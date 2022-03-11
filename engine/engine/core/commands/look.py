@@ -8,6 +8,7 @@ from engine.core import constants, types
 from .helpers import (
     get_component,
     get_location_description,
+    get_verb,
     sentence_from_list_of_names,
 )
 
@@ -35,7 +36,7 @@ def handle_command(
 
     # items we can forage or were dropped
     collectable_items = [
-        i.item.name
+        i
         for i in component.items
         if i.item.collection_method
         in (types.ItemCollectionMethod.forage, types.ItemCollectionMethod.cook)
@@ -43,9 +44,10 @@ def handle_command(
 
     msg = component.description
     if collectable_items:
+        verb = get_verb(collectable_items)
         items_str = sentence_from_list_of_names(collectable_items)
         msg = constants.COMPONENT_DESCRIPTION.format(
-            component=component.description, items=items_str
+            component=component.description, verb=verb, items=items_str
         )
 
     return types.Response(message=msg)

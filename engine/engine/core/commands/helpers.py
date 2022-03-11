@@ -133,32 +133,48 @@ def move_item_to_inventory(
     )
 
 
-def sentence_from_list_of_names(names: List[str]) -> Optional[str]:
-    updated_names = []
-    for n in names:
-        if n[0].lower() in ["a", "e", "i", "o", "u"] and n[-1] != "s":
-            updated_names.append("an " + n)
-        elif n[-1] != "s":
-            updated_names.append("a " + n)
-        else:
-            updated_names.append(n)
+def get_verb(items: List[types.Items]) -> str:
+    if len(items) > 1 or any(i.quantity > 1 for i in items):
+        return "are"
+    return "is"
 
-    if len(updated_names) == 1:
-        return f"{updated_names[0]}."
-    elif len(updated_names) == 2:
-        return f"{updated_names[0]} and {updated_names[1]}."
-    elif len(updated_names) >= 3:
+
+def sentence_from_list_of_names(
+    collection: Union[List[types.Component], List[types.Items]]
+) -> str:
+    use_plural = False
+    if all(isinstance(n, types.Component) for n in collection):
+        names = [i.name for i in collection]
+    else:
+        names = [i.item.name for i in collection]
+        if len(collection) > 1 or any(i.quantity > 1 for i in collection):
+            use_plural = True
+
+    if not use_plural:
+        updated_names = []
+        for n in names:
+            if n[0].lower() in ["a", "e", "i", "o", "u"] and n[-1] != "s":
+                updated_names.append("an " + n)
+            elif n[-1] != "s":
+                updated_names.append("a " + n)
+            else:
+                updated_names.append(n)
+        names = updated_names
+
+    if len(names) == 1:
+        return f"{names[0]}."
+
+    else:
         msg = ""
-        for n in updated_names[:-1]:
+        for n in names[:-1]:
             msg += f"{n}, "
-        return f"{msg} and {updated_names[-1]}."
-    return None
+        if msg == "":
+            return f"{names[-1]}"
+        return f"{msg[:-2]} and {names[-1]}."
 
 
 def get_location_description(location: types.Location) -> str:
-    components_str = sentence_from_list_of_names(
-        [i.name for i in location.components]
-    )
+    components_str = sentence_from_list_of_names(location.components)
     return constants.LOCATION_DESCRIPTION.format(
         location=location.description, components=components_str
     )
