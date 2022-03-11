@@ -36,7 +36,7 @@ class Region(str, Enum):
     mountains = "mountains"
     forest = "forest"
     desert = "desert"
-    home_plains = "Home Plains"
+    grasslands = "grasslands"
 
 
 # "core" types - returned from db
