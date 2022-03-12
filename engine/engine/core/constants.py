@@ -28,6 +28,9 @@ MISSING_ITEM_IN_COMPONENT = "There aren't any {item} in the {component}."
 MISSING_RECIPE = "Could not find a recipe for {ingredients}"
 NEW_MEAL = "Added {meal_name} (+{health_points}hp) to your inventory."
 NOT_A_GATEWAY = "You are not able to enter the {component}."
+NOT_ENOUGH_INVENTORY_ITEMS = (
+    "You don't have {quantity} {item} in your inventory."
+)
 NOTHING_TO_HUNT = "It doesn't seem like there's anything worthwhile to hunt in the {component}."
 FAILED_TRAP = (
     "You set a trap in the {component} using one of your {bait} "

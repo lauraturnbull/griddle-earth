@@ -1,5 +1,6 @@
 from typing import List, Optional
 
+from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from engine.adapters.postgres import persister
@@ -40,36 +41,56 @@ def get_recipe(ingredients: List[types.Item]) -> Optional[types.Recipe]:
     return recipe
 
 
+class Ingredients(BaseModel):
+    item: types.Item
+    quantity: int
+
+
 def handle_command(
     session: Session, game: types.Game, input: str
 ) -> types.Response:
     # first we check that the items are in the inventory
-    ingredients: List[types.Item] = []
+    ingredients: List[Ingredients] = []
     raw_items = input.split(", ")
-    # todo maybe allow quantities?
+
     for item_name in raw_items:
+        # the comma separated items might have a quantity
+        quantity = 1
+        if any(i.isdigit() for i in item_name):
+            q, item_name = item_name.split(" ", 1)
+            quantity = int(q)
+
         name_variants = helpers.get_noun_variants(item_name)
-        item = next(
+        items = next(
             (
-                i.item
+                i
                 for i in game.inventory.items
                 if i.item.name in name_variants and i not in ingredients
             ),
             None,
         )
-        if item is None:
+        if items is None:
             return types.Response(
                 message=constants.MISSING_INVENTORY_ITEM.format(
                     item=item_name
                 ),
             )
-        ingredients.append(item)
+        if items.quantity < quantity:
+            return types.Response(
+                message=constants.NOT_ENOUGH_INVENTORY_ITEMS.format(
+                    quantity=quantity, item=item_name
+                )
+            )
+        ingredients.append(Ingredients(item=items.item, quantity=quantity))
 
-    recipe = get_recipe(ingredients)
+    # fetch the recipe based on the ingredients so we can apply the boost
+    recipe = get_recipe([i.item for i in ingredients])
     if recipe is None:
-        # todo - faking the quantity for now
         ingredient_str = helpers.sentence_from_list_of_names(
-            [types.NewItems(quantity=1, item=i) for i in ingredients]
+            [
+                types.NewItems(quantity=i.quantity, item=i.item)
+                for i in ingredients
+            ]
         )
         return types.Response(
             message=constants.MISSING_RECIPE.format(ingredients=ingredient_str)
@@ -81,15 +102,19 @@ def handle_command(
             name=recipe.name,
             item_type=types.ItemType.meal,
             health_points=recipe.boost
-            * sum(i.health_points for i in ingredients),  # noqa W503
+            * sum(
+                i.item.health_points * i.quantity for i in ingredients
+            ),  # noqa W503
             collection_method=types.ItemCollectionMethod.cook,
         ),
     )
 
     # remove ingredients from inventory
     for i in game.inventory.items:
-        if i.item in ingredients:
-            i.quantity -= 1
+        ingredient = next((x for x in ingredients if x.item == i.item), None)
+        if ingredient:
+            i.quantity -= ingredient.quantity
+
     game.inventory.items = [i for i in game.inventory.items if i.quantity > 0]
 
     # add meal to inventory
