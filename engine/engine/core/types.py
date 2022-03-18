@@ -17,12 +17,12 @@ class Ordinal(MultiValueEnum):
 
 
 class ItemType(str, Enum):
-    fruit = "fruit"
-    vegetable = "vegetable"
-    protein = "protein"
-    grain = "grain"
-    herb = "herb"
-    meal = "meal"
+    fruit = "fruits"
+    vegetable = "vegetables"
+    protein = "proteins"
+    grain = "grains"
+    herb = "herbs"
+    meal = "meals"
 
 
 class ItemCollectionMethod(str, Enum):
@@ -218,6 +218,21 @@ class ActionOut(CamelModel):
 
 class HelpResponse(CamelModel):
     actions: List[ActionOut]
+
+
+class ItemsOut(CamelModel):
+    name: str
+    health_points: int
+    quantity: int
+
+
+class GroupedInventory(CamelModel):
+    item_type: ItemType
+    items: List[ItemsOut]
+
+
+class InventoryOut(CamelModel):
+    inventory: List[GroupedInventory]
 
 
 # purely internal
