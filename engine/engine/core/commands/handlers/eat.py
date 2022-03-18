@@ -2,8 +2,7 @@ from sqlalchemy.orm import Session
 
 from engine.adapters.postgres import persister
 from engine.core import constants, types
-
-from . import helpers
+from engine.core.commands.handlers import helpers
 
 
 def handle_command(
@@ -40,3 +39,11 @@ def handle_command(
             health_points=items.item.health_points,
         ),
     )
+
+
+action = types.Action(
+    name="eat",
+    aliases=["eat", "drink"],
+    handler=handle_command,
+    description="Consume an item (individual or meal) from your inventory.",
+)

@@ -21,6 +21,7 @@ COMPONENT_DESCRIPTION = (
     "{component} Looking closer you see that there {verb} {items}"
 )
 GATEWAY_DESCRIPTION = "You step through the {component}. A wave of cold washes over you and for a heartbeat time seems to stand still. The feeling passes almost as soon as it began. Coming to your senses, you realise you are no longer in the {location}."
+INVALID_ACTION = "Not a valid action. Type 'help' for a list of valid actions."
 MISSING_COMPONENT = "Could not find any {component}."
 MISSING_DIRECTION = "Which direction do you want to move?"
 MISSING_INVENTORY_ITEM = "You don't have any {item} in your inventory."

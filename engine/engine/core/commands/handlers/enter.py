@@ -3,8 +3,10 @@ from sqlalchemy.orm import Session
 
 from engine.adapters.postgres import persister
 from engine.core import constants, types
-
-from .helpers import get_component, get_location_description
+from engine.core.commands.handlers.helpers import (
+    get_component,
+    get_location_description,
+)
 
 
 def handle_command(
@@ -56,3 +58,12 @@ def handle_command(
         + " "
         + get_location_description(game.location),
     )
+
+
+action = types.Action(
+    name="enter",
+    aliases=["enter", "step through", "step into"],
+    handler=handle_command,
+    description="Takes you through a gateway, door or similar.",
+    examples=["step into the gateway", "enter the tower"],
+)

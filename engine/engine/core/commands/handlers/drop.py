@@ -3,9 +3,8 @@ from sqlalchemy.orm import Session
 
 from engine.adapters.postgres import persister
 from engine.core import constants, types
+from engine.core.commands.handlers import helpers
 from engine.core.resources import components
-
-from . import helpers
 
 
 def handle_command(
@@ -86,3 +85,11 @@ def handle_command(
     return types.Response(
         message=constants.DROPPED_ITEM.format(item=items.item.name)
     )
+
+
+action = types.Action(
+    name="drop",
+    aliases=["drop", "remove"],
+    handler=handle_command,
+    description="Removes an item from your inventory and places it into a discarded pile.",
+)

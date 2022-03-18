@@ -5,8 +5,10 @@ from sqlalchemy.orm import Session
 
 from engine.adapters.postgres import persister
 from engine.core import constants, types
-
-from .helpers import get_component, move_item_to_inventory
+from engine.core.commands.handlers.helpers import (
+    get_component,
+    move_item_to_inventory,
+)
 
 
 def try_capture_item(weight):
@@ -107,3 +109,12 @@ def handle_command(
             component=component_name, bait=bait_items.item.name
         )
     )
+
+
+action = types.Action(
+    name="trap",
+    aliases=["set trap", "make trap"],
+    handler=handle_command,
+    description="Sets a trap to catch prey in a location. You must provide bait. The bigger the bait, the higher the chances are of catching your quarry.",
+    examples=["set a trap in the rabbit warren with a carrot"],
+)

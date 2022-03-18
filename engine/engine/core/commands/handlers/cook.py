@@ -5,9 +5,8 @@ from sqlalchemy.orm import Session
 
 from engine.adapters.postgres import persister
 from engine.core import constants, types
+from engine.core.commands.handlers import helpers
 from engine.core.resources import recipe_book
-
-from . import helpers
 
 
 def get_recipe(ingredients: List[types.Item]) -> Optional[types.Recipe]:
@@ -132,3 +131,15 @@ def handle_command(
             health_points=new_meal.item.health_points,
         )
     )
+
+
+action = types.Action(
+    name="cook",
+    aliases=["cook"],
+    handler=handle_command,
+    description="Combines ingredients from your inventory into meals using the recipe book. Item names must be separated by a comma. The quantity of each item used defaults to 1.",
+    examples=[
+        "cook apple, strawberry, raspberry",
+        "cook 4 mushrooms, 2 onions",
+    ],
+)

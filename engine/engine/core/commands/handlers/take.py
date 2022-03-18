@@ -1,8 +1,7 @@
 from sqlalchemy.orm import Session
 
 from engine.core import types
-
-from .helpers import move_item_to_inventory
+from engine.core.commands.handlers.helpers import move_item_to_inventory
 
 
 def handle_command(
@@ -45,3 +44,15 @@ def handle_command(
             types.ItemCollectionMethod.cook,
         ],
     )
+
+
+action = types.Action(
+    name="take",
+    aliases=["take", "grab"],
+    handler=handle_command,
+    description="Moves an item into your inventory. You must provide the place you want to take the item from to avoid ambiguity. The quantity of items taken defaults to 1.",
+    examples=[
+        "take apple from the tiny tree",
+        "take all apples from the tiny tree",
+    ],
+)

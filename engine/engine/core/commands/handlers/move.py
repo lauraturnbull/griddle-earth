@@ -3,8 +3,7 @@ from sqlalchemy.orm import Session
 
 from engine.adapters.postgres import persister
 from engine.core import constants, types
-
-from .helpers import get_location_description
+from engine.core.commands.handlers.helpers import get_location_description
 
 
 def handle_command(
@@ -50,3 +49,12 @@ def handle_command(
         location=types.LocationOut(**game.location.dict()),
         message=get_location_description(game.location),
     )
+
+
+action = types.Action(
+    name="move",
+    aliases=["move", "go"],
+    handler=handle_command,
+    description="Walk in the specified direction.",
+    examples=["move south", "move north east"],
+)

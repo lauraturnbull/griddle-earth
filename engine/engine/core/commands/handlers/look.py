@@ -2,8 +2,7 @@ from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
 from engine.core import constants, types
-
-from .helpers import (
+from engine.core.commands.handlers.helpers import (
     get_component,
     get_location_description,
     get_verb,
@@ -46,3 +45,12 @@ def handle_command(
         )
 
     return types.Response(message=msg)
+
+
+action = types.Action(
+    name="look",
+    aliases=["look"],
+    handler=handle_command,
+    description="Describes the location and it's contents. You can also look at things within a location.",
+    examples=["look around", "look at the tiny tree"],
+)

@@ -1,6 +1,6 @@
 from datetime import datetime
 from enum import Enum
-from typing import List, Optional
+from typing import Callable, List, Optional, Union
 
 from aenum import MultiValueEnum
 from humps import camelize
@@ -209,6 +209,17 @@ class Response(CamelModel):
     message: str
 
 
+class ActionOut(CamelModel):
+    name: str
+    aliases: List[str]
+    description: str
+    examples: List[str] = []
+
+
+class HelpResponse(CamelModel):
+    actions: List[ActionOut]
+
+
 # purely internal
 
 
@@ -222,3 +233,15 @@ class Recipe(BaseModel):
 
 class RecipeBook(BaseModel):
     recipes: List[Recipe] = []
+
+
+class Action(BaseModel):
+    name: str
+    aliases: List[str]
+    handler: Callable[..., Union[Response, HelpResponse]]
+    description: str
+    examples: Optional[List[str]] = []
+
+
+class Actions(BaseModel):
+    actions: List[Action]
