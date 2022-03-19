@@ -46,7 +46,12 @@ class CommandParser:
 
     def handle_command(
         self, game: types.Game
-    ) -> Union[types.Response, types.HelpResponse]:
+    ) -> Union[
+        types.Response,
+        types.HelpResponse,
+        types.InventoryResponse,
+        types.AdventureLogResponse,
+    ]:
         if self.action is None:
             return types.Response(
                 message=constants.INVALID_ACTION,

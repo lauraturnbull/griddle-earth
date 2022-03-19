@@ -190,7 +190,7 @@ class DiscoveredItemsByType(CamelModel):
     discoverable: int
 
 
-class AdventureLogOut(CamelModel):
+class AdventureLogResponse(CamelModel):
     """Formatted locations and items discovered"""
 
     locations_discovered: List[DiscoveredLocationsByRegion]
@@ -253,7 +253,10 @@ class RecipeBook(BaseModel):
 class Action(BaseModel):
     name: str
     aliases: List[str]
-    handler: Callable[..., Union[Response, HelpResponse]]
+    handler: Callable[
+        ...,
+        Union[Response, HelpResponse, InventoryResponse, AdventureLogResponse],
+    ]
     description: str
     examples: Optional[List[str]] = []
 
