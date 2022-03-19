@@ -30,6 +30,9 @@ def handle_command(
         )
     game.location = location
     persister.update_game(session, game_id=game.id, new_game_state=game)
+    persister.update_adventure_log_discovered_locations(
+        session, game_id=game.id, location=game.location
+    )
     return types.Response(
         health_points=game.health_points,
         location=types.LocationOut(**location.dict()),
