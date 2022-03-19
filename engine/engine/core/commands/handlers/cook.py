@@ -12,31 +12,16 @@ from engine.core.resources import recipe_book
 def get_recipe(ingredients: List[types.Item]) -> Optional[types.Recipe]:
     # check for specific meals first
     recipes = recipe_book.make_recipe_book().recipes
-    specific_item_recipes = [r for r in recipes if r.required_items]
+
+    item_types = {i.item_type for i in ingredients}
+    generic_recipes = [r for r in recipes if r.required_types]
     recipe = next(
-        (
-            r
-            for r in specific_item_recipes
-            if set(x.name for x in r.required_items)
-            == set(y.name for y in ingredients)  # noqa: W503
-        ),
+        (r for r in generic_recipes if set(r.required_types) == item_types),
         None,
     )
-    # then check for more generic meals
-    if recipe is None:
-        item_types = {i.item_type for i in ingredients}
-        generic_recipes = [r for r in recipes if r.required_types]
-        recipe = next(
-            (
-                r
-                for r in generic_recipes
-                if set(r.required_types) == item_types
-            ),
-            None,
-        )
 
-        if recipe is None:
-            return None
+    if recipe is None:
+        return None
     return recipe
 
 

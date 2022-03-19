@@ -241,7 +241,6 @@ class InventoryResponse(CamelModel):
 class Recipe(BaseModel):
     name: str
     description: str
-    required_items: List[NewItem] = []
     required_types: List[ItemType] = []
     boost: int
 
