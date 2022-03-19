@@ -7,7 +7,7 @@ from engine.core import types
 
 def handle_command(
     session: Session, game: types.Game, context: str
-) -> types.InventoryOut:
+) -> types.InventoryResponse:
     grouped_inventory = defaultdict(list)
     for i in game.inventory.items:
         grouped_inventory[i.item.item_type].append(
@@ -21,7 +21,7 @@ def handle_command(
         types.GroupedInventory(item_type=k, items=v)
         for k, v in grouped_inventory.items()
     ]
-    return types.InventoryOut(inventory=inventory)
+    return types.InventoryResponse(inventory=inventory)
 
 
 action = types.Action(

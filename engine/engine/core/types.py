@@ -231,7 +231,7 @@ class GroupedInventory(CamelModel):
     items: List[ItemsOut]
 
 
-class InventoryOut(CamelModel):
+class InventoryResponse(CamelModel):
     inventory: List[GroupedInventory]
 
 
