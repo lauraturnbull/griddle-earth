@@ -235,6 +235,16 @@ class InventoryResponse(CamelModel):
     inventory: List[GroupedInventory]
 
 
+class RecipeOut(CamelModel):
+    name: str
+    description: str
+    boost: int
+
+
+class RecipeBookResponse(CamelModel):
+    recipes: List[RecipeOut]
+
+
 # purely internal
 
 
@@ -254,7 +264,13 @@ class Action(BaseModel):
     aliases: List[str]
     handler: Callable[
         ...,
-        Union[Response, HelpResponse, InventoryResponse, AdventureLogResponse],
+        Union[
+            Response,
+            HelpResponse,
+            InventoryResponse,
+            AdventureLogResponse,
+            RecipeBookResponse,
+        ],
     ]
     description: str
     examples: Optional[List[str]] = []

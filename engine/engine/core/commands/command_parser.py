@@ -51,6 +51,7 @@ class CommandParser:
         types.HelpResponse,
         types.InventoryResponse,
         types.AdventureLogResponse,
+        types.RecipeBookResponse,
     ]:
         if self.action is None:
             return types.Response(

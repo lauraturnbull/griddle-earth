@@ -6,6 +6,7 @@ from .enter import action as enter
 from .inventory import action as inventory
 from .look import action as look
 from .move import action as move
+from .recipe_book import action as recipe_book
 from .start import action as start
 from .take import action as take
 from .trap import action as trap
@@ -19,6 +20,7 @@ ALL_ACTIONS = [
     inventory,
     look,
     move,
+    recipe_book,
     start,
     take,
     trap,
