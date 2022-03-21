@@ -49,7 +49,8 @@ def handle_command(
             (
                 i
                 for i in game.inventory.items
-                if i.item.name in name_variants and i not in ingredients
+                if i.item.name.lower() in name_variants
+                and i not in ingredients
             ),
             None,
         )
