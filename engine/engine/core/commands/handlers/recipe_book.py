@@ -15,6 +15,6 @@ def handle_command(
 action = types.Action(
     name="recipe book",
     handler=handle_command,
-    aliases=["recipe book", "recipes", "cook book"],
+    aliases=["recipe book", "recipes"],
     description="Recipes for cooking ingredients.",
 )
