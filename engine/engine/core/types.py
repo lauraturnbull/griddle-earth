@@ -203,6 +203,11 @@ class LocationOut(CamelModel):
     region: Region
 
 
+class NewGameResponse(CamelModel):
+    id: int
+    message: str
+
+
 class Response(CamelModel):
     health_points: Optional[int]
     location: Optional[LocationOut]

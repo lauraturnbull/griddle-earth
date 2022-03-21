@@ -27,7 +27,7 @@ def root():
 @v1.post("/game")
 def create_new_game(
     session: Session = Depends(dependencies.session),
-) -> types.Game:
+) -> types.NewGameResponse:
     base_game = types.NewGame(
         health_points=constants.MAX_HP,
         inventory=types.NewInventory(),
@@ -38,7 +38,7 @@ def create_new_game(
     new_game = persister.create_new_game(
         session, game=base_game, map=base_map, adventure_log=base_adventure_log
     )
-    return new_game
+    return types.NewGameResponse(id=new_game.id, message=constants.NEW_GAME)
 
 
 # todo - handle missing resources
