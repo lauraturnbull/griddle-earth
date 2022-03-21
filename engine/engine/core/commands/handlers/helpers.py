@@ -95,6 +95,7 @@ def move_item_to_inventory(
             i
             for i in game.inventory.items
             if i.item.name == map_items.item.name
+            and i.item.health_points == map_items.item.health_points
         ),
         None,
     )
