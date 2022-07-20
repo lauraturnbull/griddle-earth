@@ -59,6 +59,7 @@ class Items(BaseModel):
 class Coordinates(BaseModel):
     x_coordinate: int
     y_coordinate: int
+    z_coordinate: int
 
 
 class Component(BaseModel):
@@ -68,7 +69,6 @@ class Component(BaseModel):
     name: str  # animal tracks
     description: str  # frequently used, perfect for setting traps
     items: List[Items] = []
-    is_gateway: bool = False
     transports_to: Optional[Coordinates] = None
 
 
@@ -132,7 +132,6 @@ class NewComponent(BaseModel):
     name: str  # animal tracks
     description: str  # frequently used, perfect for setting traps
     items: List[NewItems] = []
-    is_gateway: bool = False
     transports_to: Optional[Coordinates] = None
 
 
@@ -283,3 +282,13 @@ class Action(BaseModel):
 
 class Actions(BaseModel):
     actions: List[Action]
+
+
+class CommandResponse(BaseModel):
+    __root__: Union[
+        Response,
+        HelpResponse,
+        InventoryResponse,
+        AdventureLogResponse,
+        RecipeBookResponse,
+    ]

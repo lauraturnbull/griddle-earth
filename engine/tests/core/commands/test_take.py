@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 
 from engine.adapters.postgres import persister
 from engine.core import types
-from engine.core.commands import take
+from engine.core.commands.handlers import take
 from tests.factories import core, helpers
 
 frozen_time = datetime(2022, 2, 2)

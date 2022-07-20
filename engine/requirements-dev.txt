@@ -11,3 +11,6 @@ flake8
 sqlalchemy-stubs
 types-PyYAML
 types-freezegun
+google-api-python-client
+google-auth-httplib2
+google-auth-oauthlib

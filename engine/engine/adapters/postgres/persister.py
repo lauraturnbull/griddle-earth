@@ -39,6 +39,9 @@ def component_app_to_db(
         transports_to_y_coordinate=component.transports_to.y_coordinate
         if component.transports_to
         else None,
+        transports_to_z_coordinate=component.transports_to.z_coordinate
+        if component.transports_to
+        else None,
         **component.dict(exclude={"items", "transports_to"}),
     )
 
@@ -49,6 +52,7 @@ def location_app_to_db(
     return model.Location(
         x_coordinate=location.coordinates.x_coordinate,
         y_coordinate=location.coordinates.y_coordinate,
+        z_coordinate=location.coordinates.z_coordinate,
         components=[component_app_to_db(c) for c in location.components],
         **location.dict(exclude={"coordinates", "components"}),
     )
@@ -128,13 +132,14 @@ def component_db_to_app(component: model.Component) -> types.Component:
         id=component.id,
         name=component.name,
         description=component.description,
-        is_gateway=component.is_gateway,
         transports_to=types.Coordinates(
             x_coordinate=component.transports_to_x_coordinate,
             y_coordinate=component.transports_to_y_coordinate,
+            z_coordinate=component.transports_to_z_coordinate,
         )
         if component.transports_to_x_coordinate is not None
         and component.transports_to_y_coordinate is not None
+        and component.transports_to_z_coordinate is not None
         else None,
         items=[items_db_to_app(i) for i in component.items],
     )
@@ -146,6 +151,7 @@ def location_db_to_app(location: model.Location) -> types.Location:
         coordinates=types.Coordinates(
             x_coordinate=location.x_coordinate,
             y_coordinate=location.y_coordinate,
+            z_coordinate=location.z_coordinate,
         ),
         name=location.name,
         description=location.description,
@@ -335,6 +341,7 @@ def get_map_location_by_coordinates(
         .filter(model.Map.game_id == game_id)
         .filter(model.Location.x_coordinate == coordinates.x_coordinate)
         .filter(model.Location.y_coordinate == coordinates.y_coordinate)
+        .filter(model.Location.z_coordinate == coordinates.z_coordinate)
     )
 
     location_db = qry.one_or_none()

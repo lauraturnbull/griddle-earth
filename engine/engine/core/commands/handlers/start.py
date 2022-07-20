@@ -20,7 +20,7 @@ def handle_command(
         session,
         game_id=game.id,
         coordinates=types.Coordinates(
-            x_coordinate=2, y_coordinate=4
+            x_coordinate=2, y_coordinate=4, z_coordinate=0,
         ),  # todo set to constant
     )
     if location is None:

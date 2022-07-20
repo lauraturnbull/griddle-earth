@@ -67,9 +67,9 @@ class Component(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String, nullable=False)
     description = Column(String, nullable=False)
-    is_gateway = Column(Boolean, nullable=False)
     transports_to_x_coordinate = Column(Integer, nullable=True)
     transports_to_y_coordinate = Column(Integer, nullable=True)
+    transports_to_z_coordinate = Column(Integer, nullable=True)
     items = relationship("Items", backref="component", cascade="all")
 
     location_id = Column(Integer, ForeignKey("location.id"))
@@ -83,6 +83,7 @@ class Location(Base):
     id = Column(Integer, primary_key=True, index=True)
     x_coordinate = Column(Integer, nullable=False)
     y_coordinate = Column(Integer, nullable=False)
+    z_coordinate = Column(Integer, nullable=False)
     name = Column(String, nullable=False)
     description = Column(String, nullable=False)
     region = Column(String, nullable=False)

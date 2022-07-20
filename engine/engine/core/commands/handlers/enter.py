@@ -28,7 +28,7 @@ def handle_command(
                 component=component_name
             )
         )
-    if (not component.is_gateway) or (component.transports_to is None):
+    if component.transports_to is None:
         return types.Response(
             message=constants.NOT_A_GATEWAY.format(component=component.name)
         )

@@ -14,16 +14,17 @@ from engine.core import types
 class CSVColumn(IntEnum):
     x_coordinate = 0
     y_coordinate = 1
-    location_name = 2
-    description = 3
-    region = 4
-    component_name = 5
-    component_description = 6
-    is_gateway = 7
+    z_coordinate = 2
+    location_name = 3
+    description = 4
+    region = 5
+    component_name = 6
+    component_description = 7
     transports_to_x = 8
     transports_to_y = 9
-    quantity = 10
-    item_name = 11
+    transports_to_z = 10
+    quantity = 11
+    item_name = 12
     item_type = 12
     health_points = 13
     collection_method = 14
@@ -55,10 +56,10 @@ def component_from_row(row: List[Any]) -> Optional[types.NewComponent]:
         types.NewComponent(
             name=row[CSVColumn.component_name.value],
             description=row[CSVColumn.component_description.value],
-            is_gateway=row[CSVColumn.is_gateway.value],
             transports_to=types.Coordinates(
                 x_coordinate=int(row[CSVColumn.transports_to_x.value]),
                 y_coordinate=int(row[CSVColumn.transports_to_y.value]),
+                z_coordinate=int(row[CSVColumn.transports_to_z.value])
             )
             if (
                 row[CSVColumn.transports_to_x.value]
@@ -95,6 +96,7 @@ def base_map() -> types.NewMap:
                     coordinates=types.Coordinates(
                         x_coordinate=int(row[CSVColumn.x_coordinate.value]),
                         y_coordinate=int(row[CSVColumn.y_coordinate.value]),
+                        z_coordinate=int(row[CSVColumn.z_coordinate.value])
                     ),
                     name=row[CSVColumn.location_name.value],
                     description=row[CSVColumn.description.value],

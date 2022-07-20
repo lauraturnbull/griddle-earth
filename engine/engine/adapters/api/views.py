@@ -24,7 +24,7 @@ def root():
     return {"message": "Hello World"}
 
 
-@v1.post("/game")
+@v1.post("/game", response_model=types.NewGameResponse)
 def create_new_game(
     session: Session = Depends(dependencies.session),
 ) -> types.NewGameResponse:
@@ -44,7 +44,7 @@ def create_new_game(
 # todo - handle missing resources
 
 
-@v1.get("/game/{game_id}")
+@v1.get("/game/{game_id}", response_model=Optional[types.Game])
 def get_game(
     game_id: int, session: Session = Depends(dependencies.session)
 ) -> Optional[types.Game]:
@@ -59,7 +59,7 @@ def get_game(
     return game
 
 
-@v1.get("/game/{game_id}/map")
+@v1.get("/game/{game_id}/map", response_model=Optional[types.Map])
 def get_game_map(
     game_id: int, session: Session = Depends(dependencies.session)
 ) -> Optional[types.Map]:
@@ -67,10 +67,10 @@ def get_game_map(
     return map
 
 
-@v1.post("/game/{game_id}/command")
+@v1.post("/game/{game_id}/command", response_model=types.CommandResponse)
 def handle_command(
     game_id: int, input: str, session: Session = Depends(dependencies.session)
-) -> Any:
+) -> types.CommandResponse:
     """
     Handles interaction with a scene
     validates
